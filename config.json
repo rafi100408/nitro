@@ -1,0 +1,12 @@
+{
+    "debugMode": true,
+    "proxyRetries": 2,
+    "removeNonWorkingProxies": true,
+    "redeemToken": "mfa.8ocrgk40tqA_Q1LJ6KhXiuev1zAdF7zRaA_qy9oSwdoaFzsikCjKx0ANxyDR7t8a_MJRb2NBuIKgIoWlwGa_",
+    "requestTimeout": 10000,
+    "restartWithWorkingProxies": true,
+    "saveWorkingProxies": true,
+    "threads": 250,
+    "threadTimeout": 60000,
+    "webhookUrl": "https://canary.discord.com/api/webhooks/772487750678478868/rVlTgxhrqjlfcxQqtAJo-4wXlFHRkmsmTcDgEfemgrTWczD7gECtlbBXQNniTadM9DgK"
+}
