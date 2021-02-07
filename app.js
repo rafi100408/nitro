@@ -68,10 +68,9 @@ const checkCode = (code, t) => {
 	lastSeen[t] = +new Date();
 	if (!retries[proxy] || isNaN(retries[proxy])) retries[proxy] = 0;
 	const fThread = formatThreadID(config.threads, t);
-
 	const url = `https://discord.com/api/v6/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`;
 	needle.get(url, { proxy: proxy, user_agent: getRandom(), follow: 2, open_timeout: config.requestTimeout }, (err, res, body) => {
-		if (err || (res && [301, 302, 500, 501, 503, 504].includes(res.statusCode)) || !body || !body.message) {
+		if (err || (res && [301, 302, 500, 501, 503, 504].includes(res.statusCode)) || !body || (!body.message && !body.subscription_plan)) {
 
 			const errMsg = err ? (err.code || err.status) : body.message;
 			if ((retries[proxy] >= config.proxyRetries || retries[proxy] < 0) && config.removeNonWorkingProxies) {
@@ -122,19 +121,19 @@ const checkCode = (code, t) => {
 
 			stats.working++;
 			logger.info(`(${chalk.yellow(fThread)}) Found a valid gift code : https://discord.gift/${code} !`);
-			console.log(res.statusCode, body);
 
 			// Try to redeem the code if possible
 			redeemNitro(code, config);
 
 			// Write working code to file
 			let codes = readFileSync('./validCodes.txt', 'UTF-8');
-			codes += `https://discord.gift/${code}\n`;
-			codes += body + body.message + '\n';
+
+			codes += body.subscription_plan.name + '\n';
+			codes += `https://discord.gift/${code}\n=====================================\n`;
 			writeFileSync('./validCodes.txt', codes);
 
 			if (config.webhookUrl) {
-				sendWebhook(config.webhookUrl, `(${res.statusCode}) Found a gift code in around ${ms(+new Date() - stats.startTime, { long: true })} : https://discord.gift/${code}. \n\`${body.message}\``);
+				sendWebhook(config.webhookUrl, `(${res.statusCode}) Found a gift code in around ${ms(+new Date() - stats.startTime, { long: true })} : https://discord.gift/${code}. \n\`${body.subscription_plan.name}\``);
 			}
 
 			return checkCode(generateCode(), t);

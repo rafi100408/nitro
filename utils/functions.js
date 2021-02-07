@@ -46,7 +46,6 @@ module.exports = {
 	redeemNitro: async (code, config) => {
 
 		needle.post(`https://discordapp.com/api/v6/entitlements/gift-codes/${code}/redeem`, '', { headers: { 'Authorization': config.redeemToken } }, (err, res, body) => {
-			console.log(body);
 			if (err || !body) {
 				console.log(err);
 				logger.info(chalk.red(`Failed to redeem a nitro gift code : ${code} > ${err}.`));
@@ -58,6 +57,10 @@ module.exports = {
 			}
 			else if (body.message === 'Unknown Gift Code') {
 				return logger.warn(`${chalk.bold(code)} was an invalid gift code or had already been claimed.`);
+			}
+			else if (body.message === 'This gift has been redeemed already.') {
+				if (config.webhookUrl) { module.exports.sendWebhook(config.webhookUrl, `This gift code (${code}) has already been redeemed...`); }
+				return logger.warn(`${code} has already been redeemed...`);
 			}
 			else {
 				if (config.webhookUrl) { module.exports.sendWebhook(config.webhookUrl, 'Successfully claimed a gift code !!!'); }
