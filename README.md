@@ -12,6 +12,7 @@ A project I made some time ago, now available to everyone.
 
 * Clone or download this repository to your computer.
 * Copy your token in the `redeemToken` field in the `config.json` file (use notepad to open it), and edit the other config variables as you like.
+* Paste fresh http(s) proxies into `proxies.txt`.
 * Open up a command prompt in it and type `npm install` to install the requirements.
 * Start the generator by typing `node app.js` .
 * If any error pops out, make sure to fix it before using the generator.
@@ -34,5 +35,5 @@ These are the "global/config variables" :
 ## Disclaimer
 
 Everything you can see here has been made for educational purposes and as a proof of concept.  
-I do not promote the usage of my tools, and do not take responsibility for any bad usage of this tool.
+I do not promote the usage of my tools, and do not take responsibility for any bad usage of this tool.  
 Stealing codes means stealing money from people. Don't.
