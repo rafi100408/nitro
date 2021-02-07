@@ -28,7 +28,7 @@ These are the "global/config variables" :
 * `requestTimeout` > How long to wait for a proxy request (in ms). (Number)
 * `restartWithWorkingProxies` > Whether to restart or not with all working proxies after using all proxies (recommended). (true/false)
 * `saveWorkingProxies` > Whether to write or not the working proxies to `workingProxies.txt` (recommended). (true/false)
-* `threads` > The number of attemps to run at the same time. (Number)
+* `threads` > The number of attempts to run at the same time. (Number)
 * `threadTimeout` > Time to wait before restarting a stuck thread (in ms) (must be higher than `requestTimeout`). (Number)
 * `webhookUrl` > A webhook url to be notified when a code was found. (String)
 
