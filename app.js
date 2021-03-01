@@ -65,11 +65,10 @@ const checkCode = (code, t) => {
 		return;
 	}
 
-	lastSeen[t] = +new Date();
 	if (!retries[proxy] || isNaN(retries[proxy])) retries[proxy] = 0;
 	const fThread = formatThreadID(config.threads, t);
 	const url = `https://discord.com/api/v6/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`;
-	needle.get(url, { proxy: proxy, user_agent: getRandom(), follow: 2, open_timeout: config.requestTimeout }, (err, res, body) => {
+	needle.get(url, { proxy: proxy, user_agent: getRandom(), follow: 2, response_timeout: config.requestTimeout, read_timeout: config.requestTimeout }, (err, res, body) => {
 		if (err || (res && [301, 302, 500, 501, 503, 504].includes(res.statusCode)) || !body || (!body.message && !body.subscription_plan)) {
 
 			const errMsg = err ? (err.code || err.status) : body.message;
@@ -158,7 +157,6 @@ sendWebhook(config.webhookUrl, 'Started **YANG**.');
 
 let threads = [];
 let retries = {};
-let lastSeen = [];
 const startThreads = () => {
 	let notEnoughProxies = false;
 	for (let i = 0; i < config.threads; i++) {
@@ -166,7 +164,6 @@ const startThreads = () => {
 		if (!p) { notEnoughProxies = true; continue; }
 
 		threads[i] = p;
-		lastSeen[i] = +new Date();
 		checkCode(generateCode(), i);
 		continue;
 	}
@@ -189,7 +186,7 @@ setTimeout(() => {
 					logger.info('Restarting using working_proxies.txt list.');
 
 					proxies = (readFileSync('./working_proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '');
-					threads = []; retries = {}; lastSeen = [];
+					threads = []; retries = {};
 					config.saveWorkingProxies = false;
 					config.removeNonWorkingProxies = false;
 					config.requestTimeout = 10000;
@@ -206,21 +203,6 @@ setTimeout(() => {
 				if (config.webhookUrl) return sendWebhook(config.webhookUrl, 'Ran out of proxies.').then(setTimeout(() => { process.exit(); }, 2500));
 				else return process.exit();
 			}
-		}
-
-		// Reboot stuck threads
-		for (let i = 0; i < threads.length; i++) {
-			if (!threads[i]) continue;
-			if ((+new Date() - lastSeen[i]) >= config.threadTimeout) {
-				logger.debug(`Thread ${chalk.yellow(i)} seems to be stuck. Relaunching.`);
-
-				if (!config.removeNonWorkingProxies) proxies.push(threads[i]);
-				const p = proxies.shift();
-				threads[i] = p;
-				lastSeen[i] = +new Date();
-				checkCode(generateCode(), i);
-			}
-			continue;
 		}
 
 		/* Stats attempts per second */

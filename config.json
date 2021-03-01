@@ -7,6 +7,5 @@
     "restartWithWorkingProxies": true,
     "saveWorkingProxies": true,
     "threads": 250,
-    "threadTimeout": 60000,
     "webhookUrl": "URL"
 }
