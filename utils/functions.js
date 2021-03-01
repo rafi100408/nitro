@@ -8,12 +8,12 @@ module.exports = {
 		const configData = {
 			debugMode: ['boolean'], proxyRetries: ['number'], removeNonWorkingProxies: ['boolean'],
 			requestTimeout: ['number'], restartWithWorkingProxies: ['boolean'], saveWorkingProxies: ['boolean'],
-			threads: ['number'], threadTimeout: ['number'], webhookUrl: ['string'],
+			threads: ['number'], webhookUrl: ['string'],
 		};
 
 		for (const k of Object.keys(configData)) {
 			if (conf[k] === undefined) logger.error(`The ${chalk.bold(k)} configuration variable is missing, please check the '${chalk.yellow('config.json')}' file.`);
-			else if (!(typeof conf[k]).includes(configData[k])) logger.error(`The ${chalk.bold(k)} configuration variable is misconfigured. It should be one of '${chalk.yellow(configData[k].join(', '))}'.`);
+			else if (!configData[k].includes(typeof conf[k])) logger.error(`The ${chalk.bold(k)} configuration variable is misconfigured. It should be one of '${chalk.yellow(configData[k].join(', '))}'.`);
 		}
 		return module.exports.checkToken(conf.redeemToken);
 	},
