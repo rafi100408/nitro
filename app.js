@@ -56,7 +56,7 @@ const checkCode = (code, t) => {
 
 	// Update title and write stats to stdout
 	process.title = `YANG - by Tenclea | Proxies : ${proxies.length + threads.filter(tr => tr != null).length} | Attempts : ${stats.att + stats.attTotal} (~${aps}/s) | Working Codes : ${stats.working}`;
-	process.stdout.write(`Proxies : ${chalk.yellow(proxies.length + threads.filter(tr => tr != null).length)} | Attempts : ${chalk.yellow(stats.att + stats.attTotal)} (~${chalk.gray(aps)}/s) | Working Codes : ${chalk.green(stats.working)}\r`);
+	process.stdout.write(`Proxies : ${chalk.yellow(proxies.length + threads.filter(tr => tr != null).length)} | Attempts : ${chalk.yellow(stats.att + stats.attTotal)} (~${chalk.gray(aps)}/s) | Working Codes : ${chalk.green(stats.working)}								\r`);
 
 	const proxy = threads[t];
 	if (!proxy && proxies.length == 0) {
