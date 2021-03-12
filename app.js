@@ -124,16 +124,16 @@ const checkCode = (code, t) => {
 			// Try to redeem the code if possible
 			redeemNitro(code, config);
 
-			// Write working code to file
-			let codes = readFileSync('./validCodes.txt', 'UTF-8');
-
-			codes += body.subscription_plan.name + '\n';
-			codes += `https://discord.gift/${code}\n=====================================\n`;
-			writeFileSync('./validCodes.txt', codes);
-
 			if (config.webhookUrl) {
 				sendWebhook(config.webhookUrl, `(${res.statusCode}) Found a gift code in around ${ms(+new Date() - stats.startTime, { long: true })} : https://discord.gift/${code}. \n\`${body.subscription_plan.name}\``);
 			}
+
+			// Write working code to file
+			let codes = readFileSync('./validCodes.txt', 'UTF-8');
+
+			codes += body.subscription_plan ? body.subscription_plan.name : '?' + '\n';
+			codes += `https://discord.gift/${code}\n=====================================\n`;
+			writeFileSync('./validCodes.txt', codes);
 
 			return checkCode(generateCode(), t);
 		}
