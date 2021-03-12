@@ -43,7 +43,7 @@ module.exports = {
 		});
 	},
 
-	redeemNitro: async (code, config) => {
+	redeemNitro: (code, config) => {
 
 		needle.post(`https://discordapp.com/api/v6/entitlements/gift-codes/${code}/redeem`, '', { headers: { 'Authorization': config.redeemToken } }, (err, res, body) => {
 			if (err || !body) {
