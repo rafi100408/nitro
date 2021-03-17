@@ -43,7 +43,8 @@ const oldWorking = existsSync('./working_proxies.txt') ? (readFileSync('./workin
 if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add some proxies in "proxies.txt".'); process.exit(); }
 
 (async () => {
-	let proxies = await require('./utils/proxy-checker')([...new Set(unfiltered.concat(oldWorking))], config.threads, config.proxyRetries);
+	let proxies = [...new Set(unfiltered.concat(oldWorking))];
+	if (config.checkProxies) proxies = await require('./utils/proxy-checker')(proxies, config.threads, config.proxyRetries);
 	logger.info(`Loaded ${chalk.yellow(proxies.length)} proxies.`);
 
 	const generateCode = () => {

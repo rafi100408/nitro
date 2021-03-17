@@ -1,4 +1,5 @@
 {
+	"checkProxies": false,
     "debugMode": true,
     "proxyRetries": 2,
     "removeNonWorkingProxies": true,

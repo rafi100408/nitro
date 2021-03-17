@@ -21,6 +21,7 @@ A project I made some time ago, now available to everyone.
 
 These are the "global/config variables" :
 
+* `checkProxies` > Wether to check the proxies or not before starting the nitro generator. (true/false)
 * `debugMode` > Prints more informations to the console, like not working proxies. (true/false)
 * `proxyRetries` > How many times to retry a non-working proxy. (Number)
 * `removeNonWorkingProxies` > Whether to remove or not proxies that have been retried `proxyRetries` times. (true/false)
