@@ -1,12 +1,12 @@
 {
 	"checkProxies": false,
-    "debugMode": true,
-    "proxyRetries": 2,
-    "removeNonWorkingProxies": true,
-    "redeemToken": "token",
-    "requestTimeout": 10000,
-    "restartWithWorkingProxies": true,
-    "saveWorkingProxies": true,
-    "threads": 250,
-    "webhookUrl": "URL"
+	"debugMode": true,
+	"proxyRetries": 2,
+	"removeNonWorkingProxies": true,
+	"redeemToken": "token",
+	"requestTimeout": 10000,
+	"restartWithWorkingProxies": true,
+	"saveWorkingProxies": true,
+	"threads": 250,
+	"webhookUrl": "URL"
 }
