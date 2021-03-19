@@ -1,8 +1,3 @@
-/*
-	TODO :
-	- Embeds for webhook
-*/
-
 const
 	ms = require('ms'),
 	chalk = require('chalk'),
@@ -44,6 +39,7 @@ if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add so
 
 (async () => {
 	let proxies = [...new Set(unfiltered.concat(oldWorking))];
+	if (config.scrapeProxies) proxies = [...new Set(proxies.concat(await require('./utils/proxy-scrapper')()))];
 	if (config.checkProxies) proxies = await require('./utils/proxy-checker')(proxies, config.threads, config.proxyRetries);
 	logger.info(`Loaded ${chalk.yellow(proxies.length)} proxies.`);
 
@@ -93,7 +89,7 @@ if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add so
 					retries[proxy]++;
 					logger.debug(`(${chalk.yellow(fThread)}) Connection to ${chalk.grey(proxy)} failed : ${chalk.red(errMsg)}. Retrying...`);
 				}
-				return setTimeout(() => { checkCode(generateCode(), t); }, 1500);
+				return setTimeout(() => { checkCode(generateCode(), t); }, 1000);
 			}
 
 			try {
@@ -172,7 +168,7 @@ if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add so
 			continue;
 		}
 
-		if (notEnoughProxies) logger.error(`Could only start ${chalk.yellow(threads.length)} out of ${config.threads} threads : not enough proxies were provided.`);
+		if (notEnoughProxies) logger.warn(`Could only start ${chalk.yellow(threads.length)} out of ${config.threads} threads : not enough proxies were provided.`);
 		else logger.debug(`Successfully started ${chalk.yellow(threads.length)} threads.`);
 	};
 

@@ -7,6 +7,7 @@
 	"requestTimeout": 10000,
 	"restartWithWorkingProxies": true,
 	"saveWorkingProxies": true,
+	"scrapeProxies": true,
 	"threads": 250,
 	"webhookUrl": "URL"
 }
