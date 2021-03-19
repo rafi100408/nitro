@@ -189,8 +189,6 @@ if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add so
 						threads = []; retries = {};
 						config.saveWorkingProxies = false;
 						config.removeNonWorkingProxies = false;
-						config.requestTimeout = 10000;
-						config.proxyRetries = 25;
 
 						return startThreads();
 					}
