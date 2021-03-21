@@ -37,8 +37,8 @@ module.exports = {
 
 		const data = JSON.stringify({ 'username': 'YANG', 'avatar_url': 'https://cdn.discordapp.com/attachments/794307799965368340/794356433806032936/20210101_010801.jpg', 'content': message });
 
-		needle.post(url, data, { headers: { 'Content-Type': 'application/json' } }, (err) => {
-			if (err) logger.error(`Could not deliver webhook message : ${err}`);
+		needle.post(url, data, { headers: { 'Content-Type': 'application/json' } }, (err, _, body) => {
+			if (err || body.message) logger.error(`Could not deliver webhook message : ${err || body.message}`);
 			else logger.debug(`Successfully delivered webhook message in ${ms(+new Date() - date, { long: true })}.`);
 		});
 	},
