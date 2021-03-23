@@ -131,8 +131,8 @@ if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add so
 				// Write working code to file
 				let codes = readFileSync('./validCodes.txt', 'UTF-8');
 
-				codes += body.subscription_plan ? body.subscription_plan.name : '?' + '\n';
-				codes += `https://discord.gift/${code}\n=====================================\n`;
+				codes += body.subscription_plan ? body.subscription_plan.name : '?';
+				codes += ` - https://discord.gift/${code}\n=====================================\n`;
 				writeFileSync('./validCodes.txt', codes);
 
 				return checkCode(generateCode(), t);
