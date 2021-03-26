@@ -70,12 +70,12 @@ if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add so
 		if (!body?.message || body?.subscription_plan) {
 			if (retries > config.proxyRetries) {
 				retries++;
-				logger.debug(`Connection to ${chalk.grey(proxy)} failed : ${chalk.red(res.code)}.`);
+				logger.debug(`Connection to ${chalk.grey(proxy)} failed : ${chalk.red(res.code || 'INVALID RESPONSE')}.`);
 				setTimeout(() => { checkCode(generateCode(), proxy, retries); }, 1000);
 			}
 			else {
 				if (!config.removeNonWorkingProxies) proxies.push(proxy);
-				else logger.debug(`Removed ${chalk.gray(proxy)} : ${chalk.red(res.code)}`);
+				else logger.debug(`Removed ${chalk.gray(proxy)} : ${chalk.red(res.code || 'INVALID RESPONSE')}`);
 
 				return checkCode(generateCode(), proxies.shift());
 			}
@@ -103,11 +103,11 @@ if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add so
 			stats.working++;
 		}
 		else if (body.message === 'You are being rate limited.') {
-			// Turned out that timeouts equal to 600000 are frozen. Most likely a ban from Discord's side.
+			// timeouts equal to 600000 are frozen. Most likely a ban from Discord's side.
 			const timeout = body.retry_after;
 			if (timeout != 600000) {
 				proxies.push(proxy);
-				logger.debug(`${chalk.gray(proxy)} is being rate limited (${(timeout / 1000).toFixed(2)}s), skipping proxy / waiting...`);
+				logger.warn(`${chalk.gray(proxy)} is being rate limited (${(timeout / 1000).toFixed(2)}s), skipping proxy / waiting...`);
 			}
 			else {
 				logger.debug(`${chalk.gray(proxy)} was most likely banned by Discord. Removing proxy...`);
