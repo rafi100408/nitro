@@ -32,6 +32,9 @@ watchFile('./config.json', () => {
 	return checkConfig(config);
 });
 
+process.on('uncaughtException', (e) => console.error(e));
+process.on('unhandledRejection', (e) => console.error(e));
+
 /* Load proxies, working proxies and removes duplicates */
 const unfiltered = existsSync('./proxies.txt') ? (readFileSync('./proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '') : [];
 const oldWorking = existsSync('./working_proxies.txt') ? (readFileSync('./working_proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '') : [];
