@@ -28,10 +28,6 @@ module.exports = {
 		});
 	},
 
-	formatThreadID: (threadCount, threadId) => {
-		return '0'.repeat(String(threadCount).length).slice(0, -String(threadId).length) + threadId;
-	},
-
 	sendWebhook: (url, message) => {
 		const date = +new Date();
 
@@ -52,7 +48,7 @@ module.exports = {
 			}
 
 			else if (body.message === 'You are being rate limited.') {
-				logger.warn(chalk.red(`You are being rate limited, trying again in ${chalk.yellow(body.retry_after / 1000)} seconds.`));
+				logger.warn(chalk.red(`You are being rate limited, trying to claim again in ${chalk.yellow(body.retry_after / 1000)} seconds.`));
 				return setTimeout(() => { module.exports.redeemNitro(code, config); }, body.retry_after + 50);
 			}
 			else if (body.message === 'Unknown Gift Code') {
@@ -63,7 +59,7 @@ module.exports = {
 				return logger.warn(`${code} has already been redeemed...`);
 			}
 			else {
-				if (config.webhookUrl) { module.exports.sendWebhook(config.webhookUrl, 'Successfully claimed a gift code !!!'); }
+				if (config.webhookUrl) { module.exports.sendWebhook(config.webhookUrl, 'Successfully claimed a gift code !'); }
 				return logger.info(chalk.green(`Successfully redeemed the nitro gift code : ${code} !`));
 			}
 
