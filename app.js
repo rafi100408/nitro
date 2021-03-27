@@ -32,9 +32,6 @@ watchFile('./config.json', () => {
 	return checkConfig(config);
 });
 
-process.on('uncaughtException', (e) => console.error(e));
-process.on('unhandledRejection', (e) => console.error(e));
-
 /* Load proxies, working proxies and removes duplicates */
 const unfiltered = existsSync('./proxies.txt') ? (readFileSync('./proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '') : [];
 const oldWorking = existsSync('./working_proxies.txt') ? (readFileSync('./working_proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '') : [];
@@ -70,8 +67,8 @@ if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add so
 		}).catch(e => e);
 
 		const body = res?.body;
-		if (!body?.message || body?.subscription_plan) {
-			if (retries > config.proxyRetries) {
+		if (!body?.message && !body?.subscription_plan) {
+			if (retries < config.proxyRetries) {
 				retries++;
 				logger.debug(`Connection to ${chalk.grey(proxy)} failed : ${chalk.red(res.code || 'INVALID RESPONSE')}.`);
 				setTimeout(() => { checkCode(generateCode(), proxy, retries); }, 1000);
@@ -80,8 +77,9 @@ if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add so
 				if (!config.removeNonWorkingProxies) proxies.push(proxy);
 				else logger.debug(`Removed ${chalk.gray(proxy)} : ${chalk.red(res.code || 'INVALID RESPONSE')}`);
 
-				return checkCode(generateCode(), proxies.shift());
+				checkCode(generateCode(), proxies.shift());
 			}
+			return;
 		}
 
 		retries = 0; stats.att++;
@@ -121,7 +119,7 @@ if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add so
 		}
 		else if (body.message === 'Unknown Gift Code') {
 			logger.warn(`${code} was an invalid gift code.`);
-			return setTimeout(() => { checkCode(generateCode(), proxy); }, 1500);
+			return setTimeout(() => { checkCode(generateCode(), proxy); }, 1000);
 		}
 	};
 
@@ -130,6 +128,9 @@ if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add so
 
 	const stats = { threads: 0, att: 0, attList: [], attTotal: 0, startTime: +new Date(), working: 0 };
 	const working_proxies = [];
+	process.on('uncaughtException', (e) => { console.error(e); stats.threads--; });
+	process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
+
 
 	sendWebhook(config.webhookUrl, 'Started **YANG**.');
 
