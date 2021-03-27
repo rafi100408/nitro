@@ -62,8 +62,10 @@ if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add so
 
 		const url = `https://discord.com/api/v6/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`;
 		const res = await needle('get', url, {
-			agent: new ProxyAgent('http://' + proxy, { tunnel: true, timeout: 10000 }),
-			timeout: 10000,
+			agent: new ProxyAgent('http://' + proxy, { tunnel: true, timeout: 5000 }),
+			follow: 10,
+			response_timeout: 10000,
+			read_timeout: 5000,
 		}).catch(e => e);
 
 		const body = res?.body;
