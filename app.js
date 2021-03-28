@@ -37,6 +37,10 @@ const unfiltered = existsSync('./proxies.txt') ? (readFileSync('./proxies.txt', 
 const oldWorking = existsSync('./working_proxies.txt') ? (readFileSync('./working_proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '') : [];
 if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add some proxies in "proxies.txt".'); process.exit(); }
 
+const stats = { threads: 0, att: 0, attList: [], attTotal: 0, startTime: +new Date(), working: 0 };
+process.on('uncaughtException', (e) => { console.error(e); stats.threads--; });
+process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
+
 (async () => {
 	let proxies = [...new Set(unfiltered.concat(oldWorking))];
 	if (config.scrapeProxies) proxies = [...new Set(proxies.concat(await require('./utils/proxy-scrapper')()))];
@@ -128,12 +132,7 @@ if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add so
 	const threads = config.threads > proxies.length ? proxies.length : config.threads;
 	logger.info(`Checking for codes using ${chalk.yellow(threads)} threads.`);
 
-	const stats = { threads: 0, att: 0, attList: [], attTotal: 0, startTime: +new Date(), working: 0 };
 	const working_proxies = [];
-	process.on('uncaughtException', (e) => { console.error(e); stats.threads--; });
-	process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
-
-
 	sendWebhook(config.webhookUrl, 'Started **YANG**.');
 
 	const startThreads = () => {
