@@ -6,9 +6,7 @@ const chalk = require('chalk'),
 module.exports = {
 	checkConfig: (conf) => {
 		const configData = {
-			debugMode: ['boolean'], proxyRetries: ['number'], removeNonWorkingProxies: ['boolean'],
-			requestTimeout: ['number'], restartWithWorkingProxies: ['boolean'], saveWorkingProxies: ['boolean'],
-			threads: ['number'], webhookUrl: ['string'],
+			debugMode: ['boolean'], saveWorkingProxies: ['boolean'], threads: ['number'], webhookUrl: ['string'],
 		};
 
 		for (const k of Object.keys(configData)) {

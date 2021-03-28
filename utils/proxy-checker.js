@@ -4,7 +4,7 @@ const chalk = require('chalk'),
 	needle = require('needle'),
 	ProxyAgent = require('simple-proxy-agent');
 
-module.exports = async (proxies, threads, maxRetries) => {
+module.exports = async (proxies, threads, maxRetries = 4) => {
 
 	if (threads > proxies.length) threads = proxies.length;
 	logger.info(`Checking ${chalk.yellow(proxies.length)} proxies... This will take up to ${ms((proxies.length * (maxRetries + 1) * 30000) / threads, { long: true })}.`);

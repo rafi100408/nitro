@@ -40,7 +40,8 @@ if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add so
 (async () => {
 	let proxies = [...new Set(unfiltered.concat(oldWorking))];
 	if (config.scrapeProxies) proxies = [...new Set(proxies.concat(await require('./utils/proxy-scrapper')()))];
-	if (config.checkProxies) proxies = await require('./utils/proxy-checker')(proxies, config.threads, config.proxyRetries);
+
+	proxies = await require('./utils/proxy-checker')(proxies, config.threads);
 	logger.info(`Loaded ${chalk.yellow(proxies.length)} proxies.`);
 
 	const generateCode = () => {
@@ -70,15 +71,14 @@ if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add so
 
 		const body = res?.body;
 		if (!body?.message && !body?.subscription_plan) {
-			if (retries < config.proxyRetries) {
+			if (retries < 500) {
 				retries++;
 				logger.debug(`Connection to ${chalk.grey(proxy)} failed : ${chalk.red(res.code || 'INVALID RESPONSE')}.`);
 				setTimeout(() => { checkCode(generateCode(), proxy, retries); }, 1000);
 			}
 			else {
-				if (!config.removeNonWorkingProxies) proxies.push(proxy);
-				else logger.debug(`Removed ${chalk.gray(proxy)} : ${chalk.red(res.code || 'INVALID RESPONSE')}`);
-
+				// proxies.push(proxy); // don't remove proxy
+				logger.debug(`Removed ${chalk.gray(proxy)} : ${chalk.red(res.code || 'INVALID RESPONSE')}`);
 				checkCode(generateCode(), proxies.shift());
 			}
 			return;
@@ -155,25 +155,15 @@ if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add so
 
 			// Close / restart program if all proxies used
 			if (threads === 0) {
-				if (config.restartWithWorkingProxies) {
-					try {
-						logger.info('Restarting using working_proxies.txt list.');
-
-						proxies = (readFileSync('./working_proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '');
-						config.saveWorkingProxies = false;
-						config.removeNonWorkingProxies = false;
-
-						return startThreads();
-					}
-					catch (e) {
-						logger.error('Could not restart the generator : ' + e);
-					}
-				}
-				else {
+				logger.info('Restarting using working_proxies.txt list.');
+				proxies = (readFileSync('./working_proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '');
+				if(!proxies[0]) {
 					logger.error('Ran out of proxies.');
 					if (config.webhookUrl) return sendWebhook(config.webhookUrl, 'Ran out of proxies.').then(setTimeout(() => { process.exit(); }, 2500));
 					else return process.exit();
 				}
+				config.saveWorkingProxies = false;
+				return startThreads();
 			}
 
 			/* Stats attempts per second */
