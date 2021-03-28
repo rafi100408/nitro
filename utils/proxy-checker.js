@@ -1,31 +1,38 @@
 const chalk = require('chalk'),
 	logger = require('./logger'),
 	ms = require('ms'),
-	needle = require('needle');
+	needle = require('needle'),
+	ProxyAgent = require('simple-proxy-agent');
 
-module.exports = async (proxies, threads, maxRetries) => {
+module.exports = async (proxies, threads, maxRetries = 4) => {
 
 	if (threads > proxies.length) threads = proxies.length;
-	logger.info(`Checking ${chalk.yellow(proxies.length)} proxies... This will take up to ${ms(((proxies.length * (maxRetries + 1)) / threads) * 30000, { long: true })}.`);
+	logger.info(`Checking ${chalk.yellow(proxies.length)} proxies... This will take up to ${ms((proxies.length * (maxRetries + 1) * 30000) / threads, { long: true })}.`);
 
 	proxies = await new Promise(complete => {
-		const checkProxy = async (p, retry) => {
-			await new Promise(resolve => {
-				needle.get('https://discordapp.com/api/v6/experiments', { proxy: p, response_timeout: 10000, read_timeout: 10000 }, (err, res) => {
-					log();
-					if (!err && res.body.fingerprint) { checked.push(p); }
-					else if (retry < maxRetries) { retry++; return checkProxy(p, retry); }
+		const checkProxy = async (p) => {
 
-					if (proxies.length === 0) { threads--; resolve('done'); }
-					else { checkProxy(proxies.shift(), 0); }
-				});
-			});
+			const res = await needle('get', 'https://discordapp.com/api/v6/experiments', {
+				agent: new ProxyAgent('http://' + p, { tunnel: true, timeout: 5000 }),
+				follow: 10,
+				response_timeout: 10000,
+				read_timeout: 5000,
+			}).catch(e => e);
+
+			if (res?.body?.fingerprint) checked.push(p);
+
+			log();
+			p = proxies.shift();
+			if (p) { checkProxy(p); }
+			else { threads--; }
+
+			return;
 		};
 
 		const log = () => {
 			const time = [new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()].map(t => { if (t < 10) { t = '0' + t; } return t; });
-			const eta = (((proxies.length * (maxRetries + 1)) + threads) / threads) * 30000;
-			process.stdout.write(`${chalk.magenta(time.join(':'))} ${chalk.greenBright('[INFO]')}  » Proxies left : ${proxies.length + threads} | Working : ${checked.length} | Max. time left : ~${ms(eta, { long: true })}     \r`);
+			const eta = (((proxies.length + threads) * (maxRetries + 1) * 30000) / threads) || 1;
+			process.stdout.write(`${chalk.magenta(time.join(':'))} ${chalk.greenBright('[INFO]')}  » Proxies left : ${proxies.length + threads} | Working : ${checked.length} | Max. time left : ~${ms(eta, { long: true })}      \r`);
 			process.title = `Checking proxies... | Proxies left : ${proxies.length + threads} | Working : ${checked.length} | ETA : ${ms(eta, { long: true })}`;
 			return;
 		};
@@ -36,11 +43,12 @@ module.exports = async (proxies, threads, maxRetries) => {
 		}
 
 		const done = setInterval(() => {
-			if (threads === 0) {
+			log();
+			if (threads <= 0) {
 				clearInterval(done);
 				complete(checked);
 			}
-		}, 500);
+		}, 100);
 	});
 
 	return proxies;

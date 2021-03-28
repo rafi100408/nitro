@@ -1,7 +1,9 @@
-# YANG
-Yet Another Nitro Generator - by Tenclea
+# YANG: Yet Another Nitro Generator
 
-A project I made some time ago, now available to everyone.
+**The most efficient nitro generator and checker you'll ever find.**  
+Made with ❤ by **Tenclea**.
+
+If you liked this project, please consider starring it <3
 
 ## Requirements
 
@@ -21,20 +23,15 @@ A project I made some time ago, now available to everyone.
 
 These are the "global/config variables" :
 
-* `checkProxies` > Wether to check the proxies or not before starting the nitro generator. (true/false)
 * `debugMode` > Prints more informations to the console, like not working proxies. (true/false)
-* `proxyRetries` > How many times to retry a non-working proxy. (Number)
-* `removeNonWorkingProxies` > Whether to remove or not proxies that have been retried `proxyRetries` times. (true/false)
 * `redeemToken` > The token the nitro codes will be applied to. (String)
-* `requestTimeout` > How long to wait for a proxy request (in ms). (Number)
-* `restartWithWorkingProxies` > Whether to restart or not with all working proxies after using all proxies (recommended). (true/false)
-* `saveWorkingProxies` > Whether to write or not the working proxies to `workingProxies.txt` (recommended). (true/false)
+* `saveWorkingProxies` > Whether to write or not the working proxies to `working_proxies.txt` (recommended). (true/false)
+* `scrapeProxies` > Whether to automatically or not download fresh proxies from online sources. (true/false)
 * `threads` > The number of attempts to run at the same time. (Number)
-* `threadTimeout` > Time to wait before restarting a stuck thread (in ms) (must be higher than `requestTimeout`). (Number)
 * `webhookUrl` > A webhook url to be notified when a code was found. (String)
 
 ## Disclaimer
 
 Everything you can see here has been made for educational purposes and as a proof of concept.  
 I do not promote the usage of my tools, and do not take responsibility for any bad usage of this tool.  
-Stealing codes means stealing money from people. Don't.
+Stealing codes means stealing money from people and is against Discord's TOS. Don't.
