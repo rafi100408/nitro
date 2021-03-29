@@ -5,6 +5,15 @@ Made with ❤ by **Tenclea**.
 
 If you liked this project, please consider starring it <3
 
+## Main features
+
+* Proxy scrapper and checker
+* Code generator and checker 
+* Full webhook support
+* Auto nitro-redeem
+
+With a list of fresh proxies, I often reach ~30 checks/second.
+
 ## Requirements
 
 * [Node.js](https://nodejs.org/en/)
@@ -23,7 +32,7 @@ If you liked this project, please consider starring it <3
 
 These are the "global/config variables" :
 
-* `debugMode` > Prints more informations to the console, like not working proxies. (true/false)
+* `debugMode` > Prints additional information to the console, like proxies connection errors. (true/false)
 * `redeemToken` > The token the nitro codes will be applied to. (String)
 * `saveWorkingProxies` > Whether to write or not the working proxies to `working_proxies.txt` (recommended). (true/false)
 * `scrapeProxies` > Whether to automatically or not download fresh proxies from online sources. (true/false)
