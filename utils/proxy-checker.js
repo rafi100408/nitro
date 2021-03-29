@@ -10,7 +10,7 @@ module.exports = async (proxies, threads, maxRetries = 4) => {
 	logger.info(`Checking ${chalk.yellow(proxies.length)} proxies... This will take up to ${ms((proxies.length * (maxRetries + 1) * 30000) / threads, { long: true })}.`);
 
 	proxies = await new Promise(complete => {
-		const checkProxy = async (p) => {
+		const checkProxy = async (p, ret = 0) => {
 
 			const res = await needle('get', 'https://discordapp.com/api/v6/experiments', {
 				agent: new ProxyAgent('http://' + p, { tunnel: true, timeout: 5000 }),
@@ -21,9 +21,11 @@ module.exports = async (proxies, threads, maxRetries = 4) => {
 
 			if (res?.body?.fingerprint) checked.push(p);
 
+			if (ret < maxRetries) { ret++; }
+			else { p = proxies.shift(); ret = 0; }
+
 			log();
-			p = proxies.shift();
-			if (p) { checkProxy(p); }
+			if (p) { checkProxy(p, ret); }
 			else { threads--; }
 
 			return;
