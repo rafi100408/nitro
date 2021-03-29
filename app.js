@@ -3,7 +3,7 @@ const
 	logger = require('./utils/logger'),
 	ms = require('ms'),
 	needle = require('needle'),
-	{ redeemNitro } = require('./utils/functions'),
+	{ checkConfig, redeemNitro, sendWebhook } = require('./utils/functions'),
 	{ existsSync, readFileSync, watchFile, writeFileSync } = require('fs'),
 	ProxyAgent = require('simple-proxy-agent');
 
@@ -17,8 +17,6 @@ _/ / _/ ___ |/ /|  / / /_/ /
 /_/  /_/  |_/_/ |_/  \\____/   
               ${chalk.italic(chalk.gray('- by Tenclea'))}
 `));
-
-const { checkConfig, sendWebhook } = require('./utils/functions');
 
 let config = require('./config.json');
 checkConfig(config);
