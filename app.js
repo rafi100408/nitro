@@ -106,7 +106,7 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 			const timeout = body.retry_after;
 			if (timeout != 600000) {
 				proxies.push(proxy);
-				logger.warn(`${chalk.gray(proxy)} is being rate limited (${(timeout / 1000).toFixed(2)}s), skipping proxy / waiting...`);
+				logger.warn(`${chalk.gray(proxy)} is being rate limited (${(timeout / 1000).toFixed(2)}s), ${proxies[0] === proxy ? 'waiting' : 'skipping proxy'}...`);
 			}
 			else {
 				logger.debug(`${chalk.gray(proxy)} was most likely banned by Discord. Removing proxy...`);
