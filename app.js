@@ -37,7 +37,7 @@ const unfiltered = existsSync('./proxies.txt') ? (readFileSync('./proxies.txt', 
 const oldWorking = existsSync('./working_proxies.txt') ? (readFileSync('./working_proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '') : [];
 if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add some proxies in "proxies.txt".'); process.exit(); }
 
-const stats = { threads: 0, att: 0, attList: [], attTotal: 0, startTime: +new Date(), working: 0 };
+const stats = { threads: 0, attempts: 0, startTime: 0, working: 0 };
 process.on('uncaughtException', (e) => { console.error(e); stats.threads--; });
 process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 
@@ -56,12 +56,10 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 	};
 
 	const checkCode = async (code, proxy, retries = 0) => {
-		// Current attempts per second formula.
-		const aps = stats.attList.length > 0 ? ((stats.attList.reduce((a, b) => a + b) + stats.att) / (stats.attList.length * 5 + ((+new Date() - lastInterval) / 1000))).toFixed(3) : '0.000';
-
 		// Update title and write stats to stdout
-		process.title = `YANG - by Tenclea | Proxies : ${proxies.length + stats.threads} | Attempts : ${stats.att + stats.attTotal} (~${aps}/s) | Working Codes : ${stats.working}`;
-		process.stdout.write(`Proxies : ${chalk.yellow(proxies.length + stats.threads)} | Attempts : ${chalk.yellow(stats.att + stats.attTotal)} (~${chalk.gray(aps)}/s) | Working Codes : ${chalk.green(stats.working)}								\r`);
+		const aps = stats.attempts / ((+new Date() - stats.startTime) / 1000) || 0;
+		process.title = `YANG - by Tenclea | Proxies : ${proxies.length + stats.threads} | Attempts : ${stats.attempts} (~${aps.toFixed(3)}/s) | Working Codes : ${stats.working}`;
+		process.stdout.write(`Proxies : ${chalk.yellow(proxies.length + stats.threads)} | Attempts : ${chalk.yellow(stats.attempts)} (~${chalk.gray(aps.toFixed(3))}/s) | Working Codes : ${chalk.green(stats.working)}								\r`);
 
 		if (!proxy) { stats.threads--; return; }
 
@@ -88,7 +86,7 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 			return;
 		}
 
-		retries = 0; stats.att++;
+		retries = 0; stats.attempts++;
 		if (!working_proxies.includes(proxy)) working_proxies.push(proxy);
 
 		if (body.subscription_plan) {
@@ -131,6 +129,7 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 	logger.info(`Checking for codes using ${chalk.yellow(threads)} threads.`);
 
 	const working_proxies = [];
+	stats.startTime = +new Date();
 	sendWebhook(config.webhookUrl, 'Started **YANG**.');
 
 	const startThreads = () => {
@@ -143,13 +142,10 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 		logger.debug(`Successfully started ${chalk.yellow(threads.length)} threads.`);
 	};
 
-	let lastInterval = +new Date();
 	setTimeout(() => {
 		startThreads();
 
 		setInterval(() => {
-			lastInterval = +new Date();
-
 			// Close / restart program if all proxies used
 			if (threads === 0) {
 				logger.info('Restarting using working_proxies.txt list.');
@@ -162,12 +158,6 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 				config.saveWorkingProxies = false;
 				return startThreads();
 			}
-
-			/* Stats attempts per second */
-			stats.attList.push(stats.att);
-			if (stats.attList.length > 50) stats.attList.shift();
-			stats.attTotal += stats.att;
-			stats.att = 0;
 
 			/* Save working proxies */
 			if (config.saveWorkingProxies) { writeFileSync('./working_proxies.txt', working_proxies.join('\n')); }
