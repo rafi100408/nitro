@@ -20,8 +20,7 @@ module.exports = async (proxies, threads, maxRetries = 4) => {
 			}).catch(e => e);
 
 			if (res?.body?.fingerprint) checked.push(p);
-
-			if (ret < maxRetries) { ret++; }
+			if (ret < maxRetries && !checked.includes(p)) { ret++; }
 			else { p = proxies.shift(); ret = 0; }
 
 			log();
