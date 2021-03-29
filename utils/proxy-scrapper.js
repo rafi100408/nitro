@@ -23,5 +23,5 @@ module.exports = async () => {
 		return res.split(/\r?\n/).filter(p => p !== '');
 	});
 
-	return await Promise.all(scrapped).then(values => values.reduce((a, b) => a.concat(b), []));
+	return await Promise.all(scrapped).then(values => values.reduce((a, b) => a.concat(b), [])).catch(e => logger.error(e));
 };
