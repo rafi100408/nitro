@@ -11,29 +11,22 @@ module.exports = async (proxies, threads, maxRetries = 4) => {
 
 	proxies = await new Promise(complete => {
 		const checkProxy = async (p, ret = 0) => {
-			try {
-				const res = await needle('get', 'https://discordapp.com/api/v6/experiments', {
-					agent: new ProxyAgent('http://' + p, { tunnel: true, timeout: 5000 }),
-					follow: 10,
-					response_timeout: 10000,
-					read_timeout: 5000,
-				});
 
-				if (res?.body?.fingerprint) checked.push(p);
-				if (ret < maxRetries && !checked.includes(p)) { ret++; }
-				else { p = proxies.shift(); ret = 0; }
+			const res = await needle('get', 'https://discordapp.com/api/v6/experiments', {
+				agent: new ProxyAgent('http://' + p, { tunnel: true, timeout: 5000 }),
+				follow: 10,
+				response_timeout: 10000,
+				read_timeout: 5000,
+			}).catch(e => e);
 
-				log();
-				if (p) { checkProxy(p, ret); }
-				else { threads--; }
-			}
-			catch (e) {
-				if (ret < maxRetries && !checked.includes(p)) { ret++; }
-				else { p = proxies.shift(); ret = 0; }
-				log();
-				if (p) { checkProxy(p, ret); }
-				else { threads--; }
-			}
+			if (res?.body?.fingerprint) checked.push(p);
+			if (ret < maxRetries && !checked.includes(p)) { ret++; }
+			else { p = proxies.shift(); ret = 0; }
+
+			log();
+			if (p) { checkProxy(p, ret); }
+			else { threads--; }
+
 			return;
 		};
 

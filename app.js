@@ -38,10 +38,8 @@ const oldWorking = existsSync('./working_proxies.txt') ? (readFileSync('./workin
 if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add some proxies in "proxies.txt".'); process.exit(); }
 
 const stats = { threads: 0, attempts: 0, startTime: 0, working: 0 };
-/*
-process.on('uncaughtException', (e) => { console.error(e); stats.threads--; });
-process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
-*/
+process.on('uncaughtException', (e) => { console.error(e); stats.threads > 0 ? stats.threads-- : 0; });
+process.on('unhandledRejection', (e) => { console.error(e); stats.threads > 0 ? stats.threads-- : 0; });
 
 (async () => {
 	let proxies = [...new Set(unfiltered.concat(oldWorking))];
