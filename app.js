@@ -146,25 +146,23 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 		logger.debug(`Successfully started ${chalk.yellow(threads.length)} threads.`);
 	};
 
-	setTimeout(() => {
-		startThreads();
+	startThreads();
 
-		setInterval(() => {
-			// Close / restart program if all proxies used
-			if (threads === 0) {
-				logger.info('Restarting using working_proxies.txt list.');
-				proxies = (readFileSync('./working_proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '');
-				if (!proxies[0]) {
-					logger.error('Ran out of proxies.');
-					if (config.webhookUrl) return sendWebhook(config.webhookUrl, 'Ran out of proxies.').then(setTimeout(() => { process.exit(); }, 2500));
-					else return process.exit();
-				}
-				config.saveWorkingProxies = false;
-				return startThreads();
+	setInterval(() => {
+		// Close / restart program if all proxies used
+		if (threads === 0) {
+			logger.info('Restarting using working_proxies.txt list.');
+			proxies = (readFileSync('./working_proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '');
+			if (!proxies[0]) {
+				logger.error('Ran out of proxies.');
+				if (config.webhookUrl) return sendWebhook(config.webhookUrl, 'Ran out of proxies.').then(setTimeout(() => { process.exit(); }, 2500));
+				else return process.exit();
 			}
+			config.saveWorkingProxies = false;
+			return startThreads();
+		}
 
-			/* Save working proxies */
-			if (config.saveWorkingProxies) { writeFileSync('./working_proxies.txt', working_proxies.join('\n')); }
-		}, 5000);
+		/* Save working proxies */
+		if (config.saveWorkingProxies) { writeFileSync('./working_proxies.txt', working_proxies.join('\n')); }
 	}, 5000);
 })();
