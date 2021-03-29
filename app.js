@@ -97,14 +97,12 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 			// Try to redeem the code if possible
 			redeemNitro(code, config);
 
-			if (config.webhookUrl) {
-				sendWebhook(config.webhookUrl, `(${res.statusCode}) Found a \`${body.subscription_plan.name}\` gift code in \`${ms(+new Date() - stats.startTime, { long: true })}\` : https://discord.gift/${code}.`);
-			}
+			if (config.webhookUrl) { sendWebhook(config.webhookUrl, `(${res.statusCode}) Found a \`${body.subscription_plan.name}\` gift code in \`${ms(+new Date() - stats.startTime, { long: true })}\` : https://discord.gift/${code}.`); }
 
 			// Write working code to file
 			let codes = readFileSync('./validCodes.txt', 'UTF-8');
-			codes += body.subscription_plan ? body.subscription_plan.name : '?';
-			codes += ` - https://discord.gift/${code}\n=====================================\n`;
+			codes += body?.subscription_plan || '???';
+			codes += ` - https://discord.gift/${code}\n=====================================================n`;
 			writeFileSync('./validCodes.txt', codes);
 
 			stats.working++;
@@ -156,7 +154,7 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 			if (threads === 0) {
 				logger.info('Restarting using working_proxies.txt list.');
 				proxies = (readFileSync('./working_proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '');
-				if(!proxies[0]) {
+				if (!proxies[0]) {
 					logger.error('Ran out of proxies.');
 					if (config.webhookUrl) return sendWebhook(config.webhookUrl, 'Ran out of proxies.').then(setTimeout(() => { process.exit(); }, 2500));
 					else return process.exit();
