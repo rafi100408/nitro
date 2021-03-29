@@ -56,11 +56,7 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 	};
 
 	const checkCode = async (code, proxy, retries = 0) => {
-		// Update title and write stats to stdout
-		const aps = stats.attempts / ((+new Date() - stats.startTime) / 1000) || 0;
-		process.title = `YANG - by Tenclea | Proxies : ${proxies.length + stats.threads} | Attempts : ${stats.attempts} (~${aps.toFixed(3)}/s) | Working Codes : ${stats.working}`;
-		process.stdout.write(`Proxies : ${chalk.yellow(proxies.length + stats.threads)} | Attempts : ${chalk.yellow(stats.attempts)} (~${chalk.gray(aps.toFixed(3))}/s) | Working Codes : ${chalk.green(stats.working)}								\r`);
-
+		logStats();
 		if (!proxy) { stats.threads--; return; }
 
 		const url = `https://discord.com/api/v6/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`;
@@ -123,6 +119,14 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 			logger.warn(`${code} was an invalid gift code.`);
 			return setTimeout(() => { checkCode(generateCode(), proxy); }, 1000);
 		}
+	};
+
+	const logStats = () => {
+		// Update title and write stats to stdout
+		const aps = stats.attempts / ((+new Date() - stats.startTime) / 1000) || 0;
+		process.title = `YANG - by Tenclea | Proxies : ${proxies.length + stats.threads} | Attempts : ${stats.attempts} (~${aps.toFixed(3)}/s) | Working Codes : ${stats.working}`;
+		process.stdout.write(`Proxies : ${chalk.yellow(proxies.length + stats.threads)} | Attempts : ${chalk.yellow(stats.attempts)} (~${chalk.gray(aps.toFixed(3))}/s) | Working Codes : ${chalk.green(stats.working)}								\r`);
+		return;
 	};
 
 	const threads = config.threads > proxies.length ? proxies.length : config.threads;
