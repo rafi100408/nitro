@@ -44,8 +44,7 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 (async () => {
 	let proxies = [...new Set(unfiltered.concat(oldWorking))];
 	if (config.scrapeProxies) proxies = [...new Set(proxies.concat(await require('./utils/proxy-scrapper')()))];
-
-	proxies = await require('./utils/proxy-checker')(proxies, config.threads);
+	// proxies = await require('./utils/proxy-checker')(proxies, config.threads);
 	logger.info(`Loaded ${chalk.yellow(proxies.length)} proxies.`);
 
 	const generateCode = () => {
@@ -69,20 +68,22 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 
 		const body = res?.body;
 		if (!body?.message && !body?.subscription_plan) {
-			if (retries < 500) {
-				retries++;
+			let timeout = 0;
+			if (retries < 100) {
+				retries++; timeout = 2500;
 				logger.debug(`Connection to ${chalk.grey(proxy)} failed : ${chalk.red(res.code || 'INVALID RESPONSE')}.`);
-				setTimeout(() => { checkCode(generateCode(), proxy, retries); }, 1000);
 			}
 			else {
 				// proxies.push(proxy); // don't remove proxy
 				logger.debug(`Removed ${chalk.gray(proxy)} : ${chalk.red(res.code || 'INVALID RESPONSE')}`);
-				checkCode(generateCode(), proxies.shift());
+				proxy = proxies.shift();
 			}
-			return;
+
+			logStats();
+			return setTimeout(() => { checkCode(generateCode(), proxy, retries); }, timeout);
 		}
 
-		retries = 0; stats.attempts++;
+		retries = 0; stats.attempts++; let p = proxy;
 		if (!working_proxies.includes(proxy)) working_proxies.push(proxy);
 
 		if (body.subscription_plan) {
@@ -111,21 +112,20 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 			else {
 				logger.debug(`${chalk.gray(proxy)} was most likely banned by Discord. Removing proxy...`);
 			}
-
-			const p = proxies.shift();
-			return setTimeout(() => { checkCode(generateCode(), p); }, p === proxy ? body.retry_after : 0);
+			p = proxies.shift();
 		}
 		else if (body.message === 'Unknown Gift Code') {
 			logger.warn(`${code} was an invalid gift code.`);
-			return setTimeout(() => { checkCode(generateCode(), proxy); }, 1000);
 		}
+		logStats();
+		return setTimeout(() => { checkCode(generateCode(), p); }, p === proxy ? (body.retry_after || 1000) : 0);
 	};
 
 	const logStats = () => {
 		// Update title and write stats to stdout
 		const aps = stats.attempts / ((+new Date() - stats.startTime) / 1000) || 0;
+		process.stdout.write(`Proxies : ${chalk.yellow(proxies.length + stats.threads)} | Attempts : ${chalk.yellow(stats.attempts)} (~${chalk.gray(aps.toFixed(3))}/s) | Working Codes : ${chalk.green(stats.working)}							\r`);
 		process.title = `YANG - by Tenclea | Proxies : ${proxies.length + stats.threads} | Attempts : ${stats.attempts} (~${aps.toFixed(3)}/s) | Working Codes : ${stats.working}`;
-		process.stdout.write(`Proxies : ${chalk.yellow(proxies.length + stats.threads)} | Attempts : ${chalk.yellow(stats.attempts)} (~${chalk.gray(aps.toFixed(3))}/s) | Working Codes : ${chalk.green(stats.working)}								\r`);
 		return;
 	};
 
