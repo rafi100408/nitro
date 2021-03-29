@@ -44,7 +44,7 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 (async () => {
 	let proxies = [...new Set(unfiltered.concat(oldWorking))];
 	if (config.scrapeProxies) proxies = [...new Set(proxies.concat(await require('./utils/proxy-scrapper')()))];
-	// proxies = await require('./utils/proxy-checker')(proxies, config.threads);
+	proxies = await require('./utils/proxy-checker')(proxies, config.threads);
 	logger.info(`Loaded ${chalk.yellow(proxies.length)} proxies.`);
 
 	const generateCode = () => {
