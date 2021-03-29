@@ -124,7 +124,7 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads--; });
 	const logStats = () => {
 		// Update title and write stats to stdout
 		const aps = stats.attempts / ((+new Date() - stats.startTime) / 1000) || 0;
-		process.stdout.write(`Proxies : ${chalk.yellow(proxies.length + stats.threads)} | Attempts : ${chalk.yellow(stats.attempts)} (~${chalk.gray(aps.toFixed(3))}/s) | Working Codes : ${chalk.green(stats.working)}							\r`);
+		process.stdout.write(`Proxies : ${chalk.yellow(proxies.length + stats.threads)} | Attempts : ${chalk.yellow(stats.attempts)} (~${chalk.gray(aps.toFixed(3))}/s) | Working Codes : ${chalk.green(stats.working)}  \r`);
 		process.title = `YANG - by Tenclea | Proxies : ${proxies.length + stats.threads} | Attempts : ${stats.attempts} (~${aps.toFixed(3)}/s) | Working Codes : ${stats.working}`;
 		return;
 	};
