@@ -17,7 +17,7 @@ module.exports = async (proxies, threads, maxRetries = 4) => {
 					follow: 10,
 					response_timeout: 10000,
 					read_timeout: 5000,
-				}).catch(e => e);
+				});
 
 				if (res?.body?.fingerprint) checked.push(p);
 				if (ret < maxRetries && !checked.includes(p)) { ret++; }
