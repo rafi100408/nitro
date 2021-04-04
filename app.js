@@ -5,7 +5,7 @@ const
 	needle = require('needle'),
 	{ checkConfig, redeemNitro, sendWebhook } = require('./utils/functions'),
 	{ existsSync, readFileSync, watchFile, writeFileSync } = require('fs'),
-	ProxyAgent = require('simple-proxy-agent');
+	ProxyAgent = require('proxy-agent');
 
 // process.title = 'YANG - by Tenclea';
 console.clear();
@@ -31,18 +31,20 @@ watchFile('./config.json', () => {
 });
 
 /* Load proxies, working proxies and removes duplicates */
-const unfiltered = existsSync('./proxies.txt') ? (readFileSync('./proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '') : [];
+const http_proxies = existsSync('./required/http-proxies.txt') ? (readFileSync('./required/http-proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '').map(p => 'http://' + p) : [];
+const socks_proxies = existsSync('./required/socks-proxies.txt') ? (readFileSync('./required/socks-proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '').map(p => 'socks://' + p) : [];
 const oldWorking = existsSync('./working_proxies.txt') ? (readFileSync('./working_proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '') : [];
-if (!oldWorking[0] && !unfiltered[0]) { logger.error('Please make sure to add some proxies in "proxies.txt".'); process.exit(); }
+let proxies = [...new Set(http_proxies.concat(socks_proxies.concat(oldWorking)))];
 
 const stats = { threads: 0, attempts: 0, startTime: 0, working: 0 };
-process.on('uncaughtException', (e) => { console.error(e); stats.threads > 0 ? stats.threads-- : 0; });
+process.on('uncaughtException', () => { stats.threads > 0 ? stats.threads-- : 0; });
 process.on('unhandledRejection', (e) => { console.error(e); stats.threads > 0 ? stats.threads-- : 0; });
 
 (async () => {
-	let proxies = [...new Set(unfiltered.concat(oldWorking))];
 	if (config.scrapeProxies) proxies = [...new Set(proxies.concat(await require('./utils/proxy-scrapper')()))];
 	proxies = await require('./utils/proxy-checker')(proxies, config.threads);
+
+	if (!proxies[0]) { logger.error('Could not find any valid proxies. Please make sure to add some in the \'required\' folder.'); process.exit(); }
 	logger.info(`Loaded ${chalk.yellow(proxies.length)} proxies.`);
 
 	const generateCode = () => {
@@ -56,12 +58,14 @@ process.on('unhandledRejection', (e) => { console.error(e); stats.threads > 0 ? 
 		logStats();
 		if (!proxy) { stats.threads--; return; }
 
+		const agent = new ProxyAgent(proxy); agent.timeout = 5000;
 		const url = `https://discord.com/api/v6/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`;
 		const res = await needle('get', url, {
-			agent: new ProxyAgent('http://' + proxy, { tunnel: true, timeout: 5000 }),
+			agent: agent,
 			follow: 10,
 			response_timeout: 10000,
-			read_timeout: 5000,
+			read_timeout: 10000,
+			rejectUnauthorized: false,
 		}).catch(e => e);
 
 		const body = res?.body;
