@@ -13,7 +13,7 @@ If you liked this project, please consider starring it <3
 * Auto nitro-redeem
 * Real-time stats
 
-With a list of fresh proxies, I often reach ~30 checks/second.
+With a list of fresh proxies, I often reach ~40 attempts/second.
 
 ## Requirements
 
@@ -24,7 +24,7 @@ With a list of fresh proxies, I often reach ~30 checks/second.
 
 * Clone or download this repository to your computer.
 * Copy your token in the `redeemToken` field in the `config.json` file (use notepad to open it), and edit the other config variables as you like.
-* Paste fresh http(s) proxies into `proxies.txt`.
+* Paste fresh http(s)/socks proxies into `required/http-proxies.txt`/`required/socks-proxies.txt`.
 * Open up a command prompt in it and type `npm install` to install the requirements.
 * Start the generator by typing `node app.js` .
 * If any error pops out, make sure to fix it before using the generator.
