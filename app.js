@@ -39,6 +39,8 @@ let proxies = [...new Set(http_proxies.concat(socks_proxies.concat(oldWorking)))
 const stats = { threads: 0, attempts: 0, startTime: 0, working: 0 };
 process.on('uncaughtException', () => { stats.threads > 0 ? stats.threads-- : 0; });
 process.on('unhandledRejection', (e) => { console.error(e); stats.threads > 0 ? stats.threads-- : 0; });
+process.on('SIGINT', () => { process.exit(); });
+process.on('exit', () => { logger.info('Closing YANG... If you liked this project, make sure to leave it a star on github : https://github.com/Tenclea/YANG ! <3'); });
 
 (async () => {
 	if (config.scrapeProxies) proxies = [...new Set(proxies.concat(await require('./utils/proxy-scrapper')()))];
