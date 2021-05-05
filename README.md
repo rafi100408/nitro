@@ -9,8 +9,9 @@ If you liked this project, please consider starring it <3
 
 * Proxy scrapper and checker
 * Code generator and checker 
-* Full webhook support
 * Auto nitro-redeem
+* Download fresh proxies while checking codes
+* Full webhook support
 * Real-time stats
 
 With a list of fresh proxies, I often reach ~40 attempts/second.
