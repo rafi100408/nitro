@@ -35,7 +35,7 @@ module.exports = {
 		const update = JSON.parse(body).version;
 		const { version } = require('../package.json');
 
-		if (version !== update) return logger.info(`An update is available on GitHub (v${update}) ! https://github.com/Tenclea/YANG`);
+		if (version !== update) return logger.info(chalk.bold(`An update is available on GitHub (v${update}) ! https://github.com/Tenclea/YANG`));
 	},
 
 	sendWebhook: (url, message) => {
