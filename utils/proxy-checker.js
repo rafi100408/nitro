@@ -5,10 +5,11 @@ const chalk = require('chalk'),
 	ProxyAgent = require('proxy-agent');
 // const socks = require('socks-proxy-agent');
 
-module.exports = async (proxies, threads, maxRetries = 4) => {
+module.exports = async (proxies, threads, silent = false) => {
 	// threads = 1;
+	const maxRetries = 4;
 	if (threads > proxies.length) threads = proxies.length;
-	logger.info(`Checking ${chalk.yellow(proxies.length)} proxies... This might take up to ${ms((proxies.length * (maxRetries + 1) * 10000) / threads, { long: true })}.`);
+	if (!silent) logger.info(`Checking ${chalk.yellow(proxies.length)} proxies... This might take up to ${ms((proxies.length * (maxRetries + 1) * 10000) / threads, { long: true })}.`);
 
 	proxies = await new Promise(complete => {
 		const checkProxy = async (p, ret = 0) => {
@@ -25,7 +26,7 @@ module.exports = async (proxies, threads, maxRetries = 4) => {
 			if (res?.body?.fingerprint) {
 				checked.push(p);
 			}
-			// else { console.log(res); }
+
 			if (ret < maxRetries && !checked.includes(p)) { ret++; }
 			else { p = proxies.shift(); ret = 0; }
 
@@ -37,6 +38,7 @@ module.exports = async (proxies, threads, maxRetries = 4) => {
 		};
 
 		const log = () => {
+			if (silent) return;
 			const eta = (((proxies.length + threads) * (maxRetries + 1) * 10000) / threads) || 1;
 			const time = [new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()].map(t => { if (t < 10) { t = '0' + t; } return t; });
 			process.stdout.write(`${chalk.magenta(time.join(':'))} ${chalk.greenBright('[INFO]')}  » Proxies left : ${proxies.length + threads} | Working : ${checked.length} | Time left : ~${ms(eta, { long: true })}      \r`);
