@@ -3,7 +3,7 @@ const
 	logger = require('./utils/logger'),
 	ms = require('ms'),
 	needle = require('needle'),
-	{ checkConfig, redeemNitro, sendWebhook } = require('./utils/functions'),
+	{ checkConfig, checkForUpdates, redeemNitro, sendWebhook } = require('./utils/functions'),
 	{ existsSync, readFileSync, watchFile, writeFileSync } = require('fs'),
 	ProxyAgent = require('proxy-agent');
 
@@ -37,12 +37,13 @@ const oldWorking = existsSync('./working_proxies.txt') ? (readFileSync('./workin
 let proxies = [...new Set(http_proxies.concat(socks_proxies.concat(oldWorking)))];
 
 const stats = { threads: 0, attempts: 0, startTime: 0, working: 0 };
-process.on('uncaughtException', () => { /* stats.threads > 0 ? stats.threads-- : 0; */ });
+process.on('uncaughtException', () => { });
 process.on('unhandledRejection', (e) => { console.error(e); stats.threads > 0 ? stats.threads-- : 0; });
 process.on('SIGINT', () => { process.exit(); });
 process.on('exit', () => { logger.info('Closing YANG... If you liked this project, make sure to leave it a star on github : https://github.com/Tenclea/YANG ! <3'); });
 
 (async () => {
+	await checkForUpdates();
 	if (config.scrapeProxies) proxies = [...new Set(proxies.concat(await require('./utils/proxy-scrapper')()))];
 	proxies = await require('./utils/proxy-checker')(proxies, config.threads);
 

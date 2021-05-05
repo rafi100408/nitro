@@ -27,6 +27,17 @@ module.exports = {
 		});
 	},
 
+	checkForUpdates: async () => {
+		const { body } = await needle('get', 'https://raw.githubusercontent.com/Tenclea/YANG/main/package.json')
+			.catch(e => { logger.error(`Could not check for updates : ${e}`); return null; });
+
+		if (!body) return;
+		const update = JSON.parse(body).version;
+		const { version } = require('../package.json');
+
+		if (version !== update) return logger.info(`An update is available on GitHub (v${update}) ! https://github.com/Tenclea/YANG`);
+	},
+
 	sendWebhook: (url, message) => {
 		const date = +new Date();
 
