@@ -7,7 +7,6 @@ const
 	{ existsSync, readFileSync, watchFile, writeFileSync } = require('fs'),
 	ProxyAgent = require('proxy-agent');
 
-// process.title = 'YANG - by Tenclea';
 console.clear();
 console.log(chalk.magenta(`
 __  _____________   __________
@@ -36,7 +35,8 @@ const socks_proxies = existsSync('./required/socks-proxies.txt') ? (readFileSync
 const oldWorking = existsSync('./working_proxies.txt') ? (readFileSync('./working_proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '') : [];
 let proxies = [...new Set(http_proxies.concat(socks_proxies.concat(oldWorking)))];
 
-const stats = { threads: 0, attempts: 0, startTime: 0, working: 0 };
+const stats = { threads: 0, attempts: 0, startTime: 0, used_proxies: [], working: 0 };
+
 process.on('uncaughtException', () => { });
 process.on('unhandledRejection', (e) => { console.error(e); stats.threads > 0 ? stats.threads-- : 0; });
 process.on('SIGINT', () => { process.exit(); });
@@ -45,6 +45,7 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 (async () => {
 	await checkForUpdates();
 	if (config.scrapeProxies) proxies = [...new Set(proxies.concat(await require('./utils/proxy-scrapper')()))];
+	stats.used_proxies = stats.used_proxies.concat(proxies);
 	proxies = await require('./utils/proxy-checker')(proxies, config.threads);
 
 	if (!proxies[0]) { logger.error('Could not find any valid proxies. Please make sure to add some in the \'required\' folder.'); process.exit(); }
@@ -141,21 +142,21 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 	stats.startTime = +new Date();
 	sendWebhook(config.webhookUrl, 'Started **YANG**.');
 
-	const startThreads = () => {
-		for (let i = 0; i < threads; i++) {
+	const startThreads = (t) => {
+		for (let i = 0; i < t; i++) {
 			checkCode(generateCode(), proxies.shift());
 			stats.threads++;
 			continue;
 		}
 
-		logger.debug(`Successfully started ${chalk.yellow(threads.length)} threads.`);
+		logger.debug(`Successfully started ${chalk.yellow(t)} threads.`);
 	};
 
-	startThreads();
+	startThreads(threads);
 
 	setInterval(() => {
 		// Close / restart program if all proxies used
-		if (threads === 0) {
+		if (stats.threads === 0) {
 			logger.info('Restarting using working_proxies.txt list.');
 			proxies = (readFileSync('./working_proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '');
 			if (!proxies[0]) {
@@ -164,10 +165,33 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 				else return process.exit();
 			}
 			config.saveWorkingProxies = false;
-			return startThreads();
+			return startThreads(config.threads > proxies.length ? proxies.length : config.threads);
 		}
 
 		/* Save working proxies */
 		if (config.saveWorkingProxies) { writeFileSync('./working_proxies.txt', working_proxies.join('\n')); }
 	}, 5000);
+
+	if (config.scrapeProxies) {
+		let addingProxies = false;
+		setInterval(async () => {
+			if (addingProxies) return;
+			else addingProxies = true;
+
+			logger.debug('Downloading updated proxies.');
+
+			const new_http_proxies = existsSync('./required/http-proxies.txt') ? (readFileSync('./required/http-proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '').map(p => 'http://' + p) : [];
+			const new_socks_proxies = existsSync('./required/socks-proxies.txt') ? (readFileSync('./required/socks-proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '').map(p => 'socks://' + p) : [];
+
+			const newProxies = new_http_proxies.concat(new_socks_proxies.concat(await require('./utils/proxy-scrapper')())).filter(p => !stats.used_proxies.includes(p));
+			stats.used_proxies = stats.used_proxies.concat(newProxies);
+
+			const checked = await require('./utils/proxy-checker')(newProxies, config.threads, true);
+			proxies = proxies.concat(checked);
+
+			logger.debug(`Added ${checked.length} proxies.`);
+			startThreads(config.threads - stats.threads);
+			addingProxies = false;
+		}, 900000); // loop every 15 minutes
+	}
 })();
