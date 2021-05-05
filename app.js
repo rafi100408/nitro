@@ -15,7 +15,7 @@ _ \\/ /__    |__  | / /_  ____/
 __  /__/ /| |_   |/ /_  / __  
 _/ / _/ ___ |/ /|  / / /_/ /  
 /_/  /_/  |_/_/ |_/  \\____/   
-              ${chalk.italic(chalk.gray('- by Tenclea'))}
+       ${chalk.italic.gray(`v${require('./package.json').version} - by Tenclea`)}
 `));
 
 let config = require('./config.json');
