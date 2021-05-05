@@ -9,8 +9,6 @@
   If you liked this project, please consider <b>starring</b> it <3
 </p>
 
-
-
 <h2 align="center">Previews</h2>
 
 <p align="center">
@@ -20,7 +18,6 @@
    • Main Nitro Codes Generator : <br>
    <img src="https://i.imgur.com/4QlDMU9.png" title="YANG - By Tenclea : Main Nitro Codes Generator"/>
 </p>
-
 
 ## Main features
 
