@@ -12,7 +12,7 @@ module.exports = winston.createLogger({
 		times = times.map(t => { if (t < 10) { t = '0' + t; } return t; });
 
 		const time = chalk.magenta(times.join(':')) + ' ';
-		const message = ` » ${log.message}              `;
+		const message = ` » ${log.message}`;
 
 		if (log.level === 'info') return time + chalk.greenBright(`[${log.level.toUpperCase()}] `) + message;
 		else if (log.level === 'warn') return time + chalk.yellow(`[${log.level.toUpperCase()}] `) + message;
