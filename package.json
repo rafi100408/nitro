@@ -23,5 +23,11 @@
   "bugs": {
     "url": "https://github.com/Tenclea/YANG/issues"
   },
-  "homepage": "https://github.com/Tenclea/YANG#readme"
+  "homepage": "https://github.com/Tenclea/YANG#readme",
+  "pkg": {
+    "scripts": "app.js",
+    "targets": [ "node14-linux-x64", "node14-macos-x64", "node14-win-x64" ],
+    "outputPath": "dist"
+  },
+  "bin": "./app.js"
 }
