@@ -106,7 +106,7 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 			// Write working code to file
 			let codes = readFileSync('./validCodes.txt', 'UTF-8');
 			codes += body?.subscription_plan || '???';
-			codes += ` - https://discord.gift/${code}\n=====================================================n`;
+			codes += ` - https://discord.gift/${code}\n=====================================================\n`;
 			writeFileSync('./validCodes.txt', codes);
 
 			stats.working++;
