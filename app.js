@@ -104,7 +104,7 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 			if (config.webhookUrl) { sendWebhook(config.webhookUrl, `(${res.statusCode}) Found a \`${body.subscription_plan.name}\` gift code in \`${ms(+new Date() - stats.startTime, { long: true })}\` : https://discord.gift/${code}.`); }
 
 			// Write working code to file
-			let codes = readFileSync('./validCodes.txt', 'UTF-8');
+			let codes = existsSync('./validCodes.txt') ? readFileSync('./validCodes.txt', 'UTF-8') : '';
 			codes += body?.subscription_plan || '???';
 			codes += ` - https://discord.gift/${code}\n=====================================================\n`;
 			writeFileSync('./validCodes.txt', codes);
