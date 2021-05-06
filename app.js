@@ -17,7 +17,7 @@ _/ / _/ ___ |/ /|  / / /_/ /
        ${chalk.italic.gray(`v${require('./package.json').version} - by Tenclea`)}
 `));
 
-let config = require('./config.json');
+let config = JSON.parse(readFileSync('./config.json'));
 checkConfig(config);
 watchFile('./config.json', () => {
 	config = JSON.parse(readFileSync('./config.json'));
@@ -45,9 +45,11 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 (async () => {
 	await checkForUpdates();
 	if (config.scrapeProxies) proxies = [...new Set(proxies.concat(await require('./utils/proxy-scrapper')()))];
-	proxies = await require('./utils/proxy-checker')(proxies, config.threads);
-
 	if (!proxies[0]) { logger.error('Could not find any valid proxies. Please make sure to add some in the \'required\' folder.'); process.exit(); }
+
+	proxies = await require('./utils/proxy-checker')(proxies, config.threads);
+	if (!proxies[0]) { logger.error('All of your proxies were filtered out by the proxy checker. Please add some fresh ones in the \'required\' folder.'); process.exit(); }
+
 	logger.info(`Loaded ${chalk.yellow(proxies.length)} proxies.              `);
 
 	const generateCode = () => {
