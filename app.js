@@ -35,7 +35,7 @@ const socks_proxies = existsSync('./required/socks-proxies.txt') ? (readFileSync
 const oldWorking = existsSync('./working_proxies.txt') ? (readFileSync('./working_proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '') : [];
 let proxies = [...new Set(http_proxies.concat(socks_proxies.concat(oldWorking)))];
 
-const stats = { threads: 0, attempts: 0, startTime: 0, used_proxies: [], working: 0 };
+const stats = { threads: 0, attempts: 0, startTime: 0, working: 0 };
 
 process.on('uncaughtException', () => { });
 process.on('unhandledRejection', (e) => { console.error(e); stats.threads > 0 ? stats.threads-- : 0; });
@@ -45,11 +45,10 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 (async () => {
 	await checkForUpdates();
 	if (config.scrapeProxies) proxies = [...new Set(proxies.concat(await require('./utils/proxy-scrapper')()))];
-	stats.used_proxies = stats.used_proxies.concat(proxies);
 	proxies = await require('./utils/proxy-checker')(proxies, config.threads);
 
 	if (!proxies[0]) { logger.error('Could not find any valid proxies. Please make sure to add some in the \'required\' folder.'); process.exit(); }
-	logger.info(`Loaded ${chalk.yellow(proxies.length)} proxies.`);
+	logger.info(`Loaded ${chalk.yellow(proxies.length)} proxies.              `);
 
 	const generateCode = () => {
 		const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -121,7 +120,7 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 			p = proxies.shift();
 		}
 		else if (body.message === 'Unknown Gift Code') {
-			logger.warn(`${code} was an invalid gift code.`);
+			logger.warn(`${code} was an invalid gift code.              `);
 		}
 		logStats();
 		return setTimeout(() => { checkCode(generateCode(), p); }, p === proxy ? (body.retry_after || 1000) : 0);
@@ -183,15 +182,13 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 			const new_http_proxies = existsSync('./required/http-proxies.txt') ? (readFileSync('./required/http-proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '').map(p => 'http://' + p) : [];
 			const new_socks_proxies = existsSync('./required/socks-proxies.txt') ? (readFileSync('./required/socks-proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '').map(p => 'socks://' + p) : [];
 
-			const newProxies = new_http_proxies.concat(new_socks_proxies.concat(await require('./utils/proxy-scrapper')())).filter(p => !stats.used_proxies.includes(p));
-			stats.used_proxies = stats.used_proxies.concat(newProxies);
-
+			const newProxies = new_http_proxies.concat(new_socks_proxies.concat(await require('./utils/proxy-scrapper')())).filter(p => !working_proxies.includes(p));
 			const checked = await require('./utils/proxy-checker')(newProxies, config.threads, true);
 			proxies = proxies.concat(checked);
 
 			logger.debug(`Added ${checked.length} proxies.`);
 			startThreads(config.threads - stats.threads);
 			addingProxies = false;
-		}, 900000); // loop every 15 minutes
+		}, 600000); // loop every 10 minutes
 	}
 })();
