@@ -35,7 +35,7 @@ const socks_proxies = existsSync('./required/socks-proxies.txt') ? (readFileSync
 const oldWorking = existsSync('./working_proxies.txt') ? (readFileSync('./working_proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '') : [];
 let proxies = [...new Set(http_proxies.concat(socks_proxies.concat(oldWorking)))];
 
-const stats = { threads: 0, attempts: 0, startTime: 0, working: 0 };
+const stats = { threads: 0, startTime: 0, used_codes: [], working: 0 };
 
 process.on('uncaughtException', () => { });
 process.on('unhandledRejection', (e) => { console.error(e); stats.threads > 0 ? stats.threads-- : 0; });
@@ -92,6 +92,7 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 			return setTimeout(() => { checkCode(generateCode(), proxy, retries); }, timeout);
 		}
 
+		retries = 0; let p = proxy;
 		stats.used_codes.push(code);
 		retries = 0; stats.attempts++; let p = proxy;
 		if (!working_proxies.includes(proxy)) working_proxies.push(proxy);
@@ -133,9 +134,9 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 
 	const logStats = () => {
 		// Update title and write stats to stdout
-		const aps = stats.attempts / ((+new Date() - stats.startTime) / 1000) || 0;
-		process.stdout.write(`Proxies : ${chalk.yellow(proxies.length + stats.threads)} | Attempts : ${chalk.yellow(stats.attempts)} (~${chalk.gray(aps.toFixed(3))}/s) | Working Codes : ${chalk.green(stats.working)}  \r`);
-		process.title = `YANG - by Tenclea | Proxies : ${proxies.length + stats.threads} | Attempts : ${stats.attempts} (~${aps.toFixed(3)}/s) | Working Codes : ${stats.working}`;
+		const aps = stats.used_codes.length / ((+new Date() - stats.startTime) / 1000) || 0;
+		process.stdout.write(`Proxies : ${chalk.yellow(proxies.length + stats.threads)} | Attempts : ${chalk.yellow(stats.used_codes.length)} (~${chalk.gray(aps.toFixed(3))}/s) | Working Codes : ${chalk.green(stats.working)}  \r`);
+		process.title = `YANG - by Tenclea | Proxies : ${proxies.length + stats.threads} | Attempts : ${stats.used_codes.length} (~${aps.toFixed(3)}/s) | Working Codes : ${stats.working}`;
 		return;
 	};
 
