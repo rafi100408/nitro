@@ -58,7 +58,7 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 				return charset.charAt(Math.floor(Math.random() * charset.length));
 			})('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
 		}).join('');
-		return code;
+		return stats.used_codes.indexOf(code) == -1 ? code : generateCode();
 	};
 
 	const checkCode = async (code, proxy, retries = 0) => {
@@ -92,6 +92,7 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 			return setTimeout(() => { checkCode(generateCode(), proxy, retries); }, timeout);
 		}
 
+		stats.used_codes.push(code);
 		retries = 0; stats.attempts++; let p = proxy;
 		if (!working_proxies.includes(proxy)) working_proxies.push(proxy);
 
