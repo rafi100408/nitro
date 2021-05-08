@@ -38,6 +38,17 @@ module.exports = {
 		if (version !== update) return logger.info(chalk.bold(`An update is available on GitHub (v${update}) ! https://github.com/Tenclea/YANG`));
 	},
 
+	getCommunityCodes: async (stats) => {
+		const { body } = await needle(
+			'post',
+			'https://yangdb.tenclea.repl.co/codes',
+			{ codes: stats.used_codes, version: stats.version },
+			{ json: true, timeout: 5000 },
+		).catch(() => { });
+
+		return body?.codes || [];
+	},
+
 	sendWebhook: (url, message) => {
 		const date = +new Date();
 

@@ -3,9 +3,11 @@ const
 	logger = require('./utils/logger'),
 	ms = require('ms'),
 	needle = require('needle'),
-	{ checkConfig, checkForUpdates, redeemNitro, sendWebhook } = require('./utils/functions'),
+	{ checkConfig, checkForUpdates, getCommunityCodes, redeemNitro, sendWebhook } = require('./utils/functions'),
 	{ existsSync, readFileSync, watchFile, writeFileSync } = require('fs'),
 	ProxyAgent = require('proxy-agent');
+
+const stats = { threads: 0, startTime: 0, used_codes: [], submitted_codes: [], version: require('./package.json').version, working: 0 };
 
 console.clear();
 console.log(chalk.magenta(`
@@ -14,7 +16,7 @@ _ \\/ /__    |__  | / /_  ____/
 __  /__/ /| |_   |/ /_  / __  
 _/ / _/ ___ |/ /|  / / /_/ /  
 /_/  /_/  |_/_/ |_/  \\____/   
-       ${chalk.italic.gray(`v${require('./package.json').version} - by Tenclea`)}
+       ${chalk.italic.gray(`v${stats.version} - by Tenclea`)}
 `));
 
 let config = JSON.parse(readFileSync('./config.json'));
@@ -34,8 +36,6 @@ const http_proxies = existsSync('./required/http-proxies.txt') ? (readFileSync('
 const socks_proxies = existsSync('./required/socks-proxies.txt') ? (readFileSync('./required/socks-proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '').map(p => 'socks://' + p) : [];
 const oldWorking = existsSync('./working_proxies.txt') ? (readFileSync('./working_proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '') : [];
 let proxies = [...new Set(http_proxies.concat(socks_proxies.concat(oldWorking)))];
-
-const stats = { threads: 0, startTime: 0, used_codes: [], working: 0 };
 
 process.on('uncaughtException', () => { });
 process.on('unhandledRejection', (e) => { console.error(e); stats.threads > 0 ? stats.threads-- : 0; });
@@ -58,7 +58,7 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 				return charset.charAt(Math.floor(Math.random() * charset.length));
 			})('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
 		}).join('');
-		return stats.used_codes.indexOf(code) == -1 ? code : generateCode();
+		return !stats.used_codes.includes(code) || stats.submitted_codes.indexOf(code) == -1 ? code : generateCode();
 	};
 
 	const checkCode = async (code, proxy, retries = 0) => {
@@ -133,9 +133,10 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 
 	const logStats = () => {
 		// Update title and write stats to stdout
-		const aps = stats.used_codes.length / ((+new Date() - stats.startTime) / 1000) * 60 || 0;
-		process.stdout.write(`Proxies : ${chalk.yellow(proxies.length + stats.threads)} | Attempts : ${chalk.yellow(stats.used_codes.length)} (~${chalk.gray(aps.toFixed(0))}/min) | Working Codes : ${chalk.green(stats.working)}  \r`);
-		process.title = `YANG - by Tenclea | Proxies : ${proxies.length + stats.threads} | Attempts : ${stats.used_codes.length} (~${aps.toFixed(0)}/min) | Working Codes : ${stats.working}`;
+		const attempts = stats.used_codes.length + stats.submitted_codes.length;
+		const aps = attempts / ((+new Date() - stats.startTime) / 1000) * 60 || 0;
+		process.stdout.write(`Proxies : ${chalk.yellow(proxies.length + stats.threads)} | Attempts : ${chalk.yellow(attempts)} (~${chalk.gray(aps.toFixed(0))}/min) | Working Codes : ${chalk.green(stats.working)}  \r`);
+		process.title = `YANG - by Tenclea | Proxies : ${proxies.length + stats.threads} | Attempts : ${attempts} (~${aps.toFixed(0)}/min) | Working Codes : ${stats.working}`;
 		return;
 	};
 
@@ -196,4 +197,16 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 			addingProxies = false;
 		}, 600000); // loop every 10 minutes
 	}
+
+	setInterval(async () => {
+		const codes = await getCommunityCodes(stats);
+
+		stats.submitted_codes = [...new Set(stats.submitted_codes.concat(stats.used_codes))];
+		stats.used_codes = [];
+
+		const newCodes = codes.filter(c => stats.submitted_codes.indexOf(c) === -1);
+		stats.submitted_codes = [...new Set(stats.submitted_codes.concat(newCodes))];
+
+		logger.debug(`Downloaded ${chalk.yellow(newCodes.length)} codes from the community.              `);
+	}, 30_000);
 })();

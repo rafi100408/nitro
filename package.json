@@ -1,6 +1,6 @@
 {
   "name": "yang",
-  "version": "2.2.3",
+  "version": "2.3.0",
   "description": "**The most efficient nitro generator and checker you'll ever find.**  \r Made with ❤ by **Tenclea**.",
   "main": "app.js",
   "scripts": {
@@ -15,7 +15,6 @@
     "proxy-agent": "^4.0.1",
     "winston": "^3.3.3"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Tenclea/YANG.git"
@@ -25,10 +24,22 @@
   },
   "homepage": "https://github.com/Tenclea/YANG#readme",
   "pkg": {
-    "scripts": ["app.js", "utils/*.js"],
-	"assets": ["utils/*.js"],
-    "targets": [ "node14-linux-x64", "node14-macos-x64", "node14-win-x64" ],
+    "scripts": [
+      "app.js",
+      "utils/*.js"
+    ],
+    "assets": [
+      "utils/*.js"
+    ],
+    "targets": [
+      "node14-linux-x64",
+      "node14-macos-x64",
+      "node14-win-x64"
+    ],
     "outputPath": "dist"
   },
-  "bin": "./app.js"
+  "bin": {
+    "yang": "app.js"
+  },
+  "devDependencies": {}
 }
