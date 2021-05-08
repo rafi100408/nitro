@@ -21,14 +21,12 @@
 
 ## Main features
 
+* **Very fast code generator and checker (2000 attempts/minute)**
 * Proxy scrapper and checker
-* Code generator and checker 
 * Auto nitro-redeem
 * Download fresh proxies while checking codes
 * Full webhook support
 * Real-time stats
-
-With a list of fresh proxies, I often reach ~40 attempts/second.
 
 ## Requirements
 
