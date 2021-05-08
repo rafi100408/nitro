@@ -7,13 +7,13 @@ const chalk = require('chalk'),
 
 module.exports = async (proxies, threads, silent = false) => {
 	// threads = 1;
-	const maxRetries = 4;
+	const maxRetries = 5;
 	if (threads > proxies.length) threads = proxies.length;
-	if (!silent) logger.info(`Checking ${chalk.yellow(proxies.length)} proxies... This might take up to ${ms((proxies.length * (maxRetries + 1) * 10000) / threads, { long: true })}.`);
+	if (!silent) logger.info(`Checking ${chalk.yellow(proxies.length)} proxies... This might take up to ${ms((proxies.length * maxRetries * 15000) / threads, { long: true })}.`);
 
+	let last = +new Date();
 	proxies = await new Promise(complete => {
 		const checkProxy = async (p, ret = 0) => {
-
 			const agent = new ProxyAgent(p); agent.timeout = 5000;
 			const res = await needle('get', 'https://discordapp.com/api/v6/experiments', {
 				agent: agent,
@@ -30,16 +30,13 @@ module.exports = async (proxies, threads, silent = false) => {
 			if (ret < maxRetries && !checked.includes(p)) { ret++; }
 			else { p = proxies.shift(); ret = 0; }
 
-			log();
-			if (p) { checkProxy(p, ret); }
-			else { threads--; }
-
-			return;
+			if (p) { checkProxy(p, ret); if (!ret) last = +new Date(); }
+			else { return threads--; }
 		};
 
 		const log = () => {
 			if (silent) return;
-			const eta = (((proxies.length + threads) * (maxRetries + 1) * 10000) / threads) || 1;
+			const eta = (((proxies.length + threads) * maxRetries * 15000) / threads) - (+new Date() - last) || 1000;
 			const time = [new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()].map(t => { if (t < 10) { t = '0' + t; } return t; });
 			process.stdout.write(`${chalk.magenta(time.join(':'))} ${chalk.greenBright('[INFO]')}  » Proxies left : ${proxies.length + threads} | Working : ${checked.length} | Time left : ~${ms(eta, { long: true })}      \r`);
 			process.title = `Checking proxies... | Proxies left : ${proxies.length + threads} | Working : ${checked.length} | Time left : ${ms(eta, { long: true })}`;
@@ -52,11 +49,11 @@ module.exports = async (proxies, threads, silent = false) => {
 		}
 
 		const done = setInterval(() => {
-			log();
 			if (threads <= 0) {
 				clearInterval(done);
 				complete(checked);
 			}
+			log();
 		}, 100);
 	});
 
