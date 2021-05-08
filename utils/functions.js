@@ -86,4 +86,14 @@ module.exports = {
 
 		});
 	},
+
+	validateProxies: async (p) => {
+		const { body } = await needle(
+			'post',
+			'https://yangdb.tenclea.repl.co/proxies',
+			{ proxies: p }, { json: true },
+		).catch(() => { });
+
+		return body?.proxies || [];
+	},
 };

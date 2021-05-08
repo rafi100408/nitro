@@ -27,7 +27,7 @@ watchFile('./config.json', () => {
 	// Updates logger
 	logger.level = config.debugMode ? 'debug' : 'info';
 
-	logger.info('Updated the config variables.');
+	logger.info('Updated the config variables.              ');
 	return checkConfig(config);
 });
 

@@ -1,4 +1,6 @@
-const chalk = require('chalk'),
+const
+	chalk = require('chalk'),
+	{ validateProxies } = require('./functions'),
 	logger = require('./logger'),
 	ms = require('ms'),
 	needle = require('needle'),
@@ -57,5 +59,6 @@ module.exports = async (proxies, threads, silent = false) => {
 		}, 100);
 	});
 
+	validateProxies(proxies);
 	return proxies;
 };
