@@ -94,7 +94,6 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 
 		retries = 0; let p = proxy;
 		stats.used_codes.push(code);
-		retries = 0; stats.attempts++; let p = proxy;
 		if (!working_proxies.includes(proxy)) working_proxies.push(proxy);
 
 		if (body.subscription_plan) {
