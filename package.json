@@ -1,6 +1,6 @@
 {
   "name": "yang",
-  "version": "2.2.1",
+  "version": "2.2.3",
   "description": "**The most efficient nitro generator and checker you'll ever find.**  \r Made with ❤ by **Tenclea**.",
   "main": "app.js",
   "scripts": {
@@ -25,7 +25,8 @@
   },
   "homepage": "https://github.com/Tenclea/YANG#readme",
   "pkg": {
-    "scripts": "app.js",
+    "scripts": ["app.js", "utils/*.js"],
+	"assets": ["utils/*.js"],
     "targets": [ "node14-linux-x64", "node14-macos-x64", "node14-win-x64" ],
     "outputPath": "dist"
   },
