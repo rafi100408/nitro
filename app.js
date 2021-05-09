@@ -204,9 +204,9 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 		stats.submitted_codes = [...new Set(stats.submitted_codes.concat(stats.used_codes))];
 		stats.used_codes = [];
 
-		const newCodes = codes.filter(c => stats.submitted_codes.indexOf(c) === -1);
-		stats.submitted_codes = [...new Set(stats.submitted_codes.concat(newCodes))];
+		const pLength = stats.submitted_codes.length;
+		stats.submitted_codes = [...new Set(stats.submitted_codes.concat(codes))];
 
-		logger.debug(`Downloaded ${chalk.yellow(newCodes.length)} codes from the community.              `);
+		logger.debug(`Downloaded ${chalk.yellow(stats.submitted_codes.length - pLength)} codes from the community.              `);
 	}, 30_000);
 })();
