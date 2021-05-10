@@ -19,7 +19,7 @@ module.exports = {
 
 	checkToken: (token) => {
 		const headers = { 'Content-Type': 'application/json', 'Authorization': token, 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0' };
-		needle.get('https://discordapp.com/api/v8/users/@me', { open_timeout: 10000, headers: headers }, (err, res, body) => {
+		needle.get('https://discordapp.com/api/v8/users/@me', { response_timeout: 10000, headers: headers }, (err, res, body) => {
 			if (err) { logger.error(`Could not login using the provided ${chalk.bold('redeemToken')} : ${err}`); }
 			else if (body.message === '401: Unauthorized') { logger.error(chalk.red.bold(`Invalid redeemToken : ${chalk.reset.bold(`"${token}"`)}`)); }
 			else { logger.debug(`Successfully logged in as ${chalk.bold(chalk.blue(body.username + '#' + body.discriminator))}.`); }
@@ -43,7 +43,7 @@ module.exports = {
 			'post',
 			'https://yangdb.tenclea.repl.co/codes',
 			{ codes: stats.used_codes, version: stats.version },
-			{ json: true, timeout: 5000 },
+			{ json: true, response_timeout: 5000 },
 		).catch(() => { });
 
 		return res?.body?.codes;
@@ -91,7 +91,7 @@ module.exports = {
 		const res = await needle(
 			'post',
 			'https://yangdb.tenclea.repl.co/proxies',
-			{ proxies: p }, { json: true },
+			{ proxies: p }, { json: true, response_timeout: 5000 },
 		).catch(() => { });
 
 		return res?.body?.proxies || [];
