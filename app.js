@@ -7,7 +7,7 @@ const
 	{ existsSync, readFileSync, watchFile, writeFileSync } = require('fs'),
 	ProxyAgent = require('proxy-agent');
 
-const stats = { threads: 0, startTime: 0, used_codes: [], submitted_codes: [], version: require('./package.json').version, working: 0 };
+const stats = { downloaded_codes: [], threads: 0, startTime: 0, used_codes: [], version: require('./package.json').version, working: 0 };
 
 console.clear();
 console.log(chalk.magenta(`
@@ -58,7 +58,7 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 				return charset.charAt(Math.floor(Math.random() * charset.length));
 			})('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
 		}).join('');
-		return !stats.used_codes.includes(code) || stats.submitted_codes.indexOf(code) == -1 ? code : generateCode();
+		return !stats.used_codes.includes(code) || stats.downloaded_codes.indexOf(code) == -1 ? code : generateCode();
 	};
 
 	const checkCode = async (code, proxy, retries = 0) => {
@@ -133,7 +133,7 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 
 	const logStats = () => {
 		// Update title and write stats to stdout
-		const attempts = stats.used_codes.length + stats.submitted_codes.length;
+		const attempts = stats.used_codes.length;
 		const aps = attempts / ((+new Date() - stats.startTime) / 1000) * 60 || 0;
 		process.stdout.write(`Proxies : ${chalk.yellow(proxies.length + stats.threads)} | Attempts : ${chalk.yellow(attempts)} (~${chalk.gray(aps.toFixed(0))}/min) | Working Codes : ${chalk.green(stats.working)}  \r`);
 		process.title = `YANG - by Tenclea | Proxies : ${proxies.length + stats.threads} | Attempts : ${attempts} (~${aps.toFixed(0)}/min) | Working Codes : ${stats.working}`;
@@ -200,13 +200,11 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 
 	setInterval(async () => {
 		const codes = await getCommunityCodes(stats);
+		if (!codes) return;
 
-		stats.submitted_codes = [...new Set(stats.submitted_codes.concat(stats.used_codes))];
-		stats.used_codes = [];
+		const pLength = stats.downloaded_codes.length;
+		stats.downloaded_codes = [...new Set(stats.downloaded_codes.concat(codes))];
 
-		const pLength = stats.submitted_codes.length;
-		stats.submitted_codes = [...new Set(stats.submitted_codes.concat(codes))];
-
-		logger.debug(`Downloaded ${chalk.yellow(stats.submitted_codes.length - pLength)} codes from the community.              `);
+		logger.debug(`Downloaded ${chalk.yellow(stats.downloaded_codes.length - pLength)} codes from the community.              `);
 	}, 30_000);
 })();

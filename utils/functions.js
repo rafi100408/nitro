@@ -39,14 +39,14 @@ module.exports = {
 	},
 
 	getCommunityCodes: async (stats) => {
-		const { body } = await needle(
+		const res = await needle(
 			'post',
 			'https://yangdb.tenclea.repl.co/codes',
 			{ codes: stats.used_codes, version: stats.version },
 			{ json: true, timeout: 5000 },
 		).catch(() => { });
 
-		return body?.codes || [];
+		return res?.body?.codes;
 	},
 
 	sendWebhook: (url, message) => {
@@ -88,12 +88,12 @@ module.exports = {
 	},
 
 	validateProxies: async (p) => {
-		const { body } = await needle(
+		const res = await needle(
 			'post',
 			'https://yangdb.tenclea.repl.co/proxies',
 			{ proxies: p }, { json: true },
 		).catch(() => { });
 
-		return body?.proxies || [];
+		return res?.body?.proxies || [];
 	},
 };
