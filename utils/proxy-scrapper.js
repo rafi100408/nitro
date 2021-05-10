@@ -28,7 +28,7 @@ module.exports = async () => {
 		const r = proxySites[t].map(async s => {
 			const res = await needle('get', s).catch(e => e);
 			if (!res.body) return [];
-			return res.body.split(/\r?\n/)
+			return res.body.split(/\r?\n|<br>/)
 				.filter(p => p !== '')
 				.map(p => t + '://' + p);
 		});
