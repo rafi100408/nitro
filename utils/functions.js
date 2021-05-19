@@ -43,7 +43,7 @@ module.exports = {
 			'post',
 			'https://yangdb.tenclea.repl.co/codes',
 			{ codes: stats.used_codes.slice(-10000), version: stats.version },
-			{ json: true, response_timeout: 5000 },
+			{ json: true, response_timeout: 30000 },
 		).catch(() => { });
 
 		return res?.body?.codes;
