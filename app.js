@@ -183,7 +183,7 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 			if (addingProxies) return;
 			else addingProxies = true;
 
-			logger.debug('Downloading updated proxies.');
+			logger.info('Downloading updated proxies.');
 
 			const new_http_proxies = existsSync('./required/http-proxies.txt') ? (readFileSync('./required/http-proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '').map(p => 'http://' + p) : [];
 			const new_socks_proxies = existsSync('./required/socks-proxies.txt') ? (readFileSync('./required/socks-proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '').map(p => 'socks://' + p) : [];
@@ -192,10 +192,10 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 			const checked = await require('./utils/proxy-checker')(newProxies, config.threads, true);
 			proxies = proxies.concat(checked);
 
-			logger.debug(`Added ${checked.length} proxies.`);
+			logger.info(`Added ${checked.length} proxies.`);
 			startThreads(config.threads - stats.threads);
 			addingProxies = false;
-		}, 600000); // loop every 10 minutes
+		}, 60 * 60 * 1000);
 	}
 
 	setInterval(async () => {
