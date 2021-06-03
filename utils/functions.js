@@ -19,7 +19,7 @@ module.exports = {
 
 	checkToken: (token) => {
 		const headers = { 'Content-Type': 'application/json', 'Authorization': token, 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0' };
-		needle.get('https://discordapp.com/api/v8/users/@me', { response_timeout: 10000, headers: headers }, (err, res, body) => {
+		needle.get('https://discordapp.com/api/v9/users/@me', { response_timeout: 10000, headers: headers }, (err, res, body) => {
 			if (err) { logger.error(`Could not login using the provided ${chalk.bold('redeemToken')} : ${err}`); }
 			else if (body.message === '401: Unauthorized') { logger.error(chalk.red.bold(`Invalid redeemToken : ${chalk.reset.bold(`"${token}"`)}`)); }
 			else { logger.debug(`Successfully logged in as ${chalk.bold(chalk.blue(body.username + '#' + body.discriminator))}.`); }
@@ -73,7 +73,7 @@ module.exports = {
 
 	redeemNitro: (code, config) => {
 
-		needle.post(`https://discordapp.com/api/v6/entitlements/gift-codes/${code}/redeem`, '', { headers: { 'Authorization': config.redeemToken } }, (err, res, body) => {
+		needle.post(`https://discordapp.com/api/v9/entitlements/gift-codes/${code}/redeem`, '', { headers: { 'Authorization': config.redeemToken } }, (err, res, body) => {
 			if (err || !body) {
 				console.log(err);
 				logger.info(chalk.red(`Failed to redeem a nitro gift code : ${code} > ${err}.`));

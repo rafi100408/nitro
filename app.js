@@ -66,7 +66,7 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 		if (!proxy) { stats.threads--; return; }
 
 		const agent = new ProxyAgent(proxy); agent.timeout = 5000;
-		const url = `https://discord.com/api/v6/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`;
+		const url = `https://discord.com/api/v9/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`;
 		const res = await needle('get', url, {
 			agent: agent,
 			follow: 10,
