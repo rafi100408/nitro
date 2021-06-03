@@ -39,11 +39,11 @@ let proxies = [...new Set(http_proxies.concat(socks_proxies.concat(oldWorking)))
 
 process.on('uncaughtException', () => { });
 process.on('unhandledRejection', (e) => { console.error(e); stats.threads > 0 ? stats.threads-- : 0; });
-process.on('SIGINT', () => { process.exit(); });
+process.on('SIGINT', () => { checkForUpdates(); process.exit(); });
 process.on('exit', () => { logger.info('Closing YANG... If you liked this project, make sure to leave it a star on github : https://github.com/Tenclea/YANG ! <3'); });
 
 (async () => {
-	await checkForUpdates();
+	checkForUpdates();
 	if (config.scrapeProxies) proxies = [...new Set(proxies.concat(await require('./utils/proxy-scrapper')()))];
 	if (!proxies[0]) { logger.error('Could not find any valid proxies. Please make sure to add some in the \'required\' folder.'); process.exit(); }
 
@@ -199,6 +199,7 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 	}
 
 	setInterval(async () => {
+		checkForUpdates(true);
 		const codes = await getCommunityCodes(stats);
 		if (!codes) return;
 
@@ -206,5 +207,5 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 		stats.downloaded_codes = [...new Set(stats.downloaded_codes.concat(codes))];
 
 		logger.debug(`Downloaded ${chalk.yellow(stats.downloaded_codes.length - pLength)} codes from the community.              `);
-	}, 30_000);
+	}, 60_000);
 })();

@@ -27,15 +27,26 @@ module.exports = {
 		});
 	},
 
-	checkForUpdates: async () => {
-		const { body } = await needle('get', 'https://raw.githubusercontent.com/Tenclea/YANG/main/package.json')
-			.catch(e => { logger.error(`Could not check for updates : ${e}`); return null; });
+	updateAvailable: false,
+	checkForUpdates: (silent = false) => {
+		if (module.exports.updateAvailable) {
+			if (silent) return;
+			return logger.info(chalk.bold(`An update is available on GitHub (v${module.exports.updateAvailable}) ! https://github.com/Tenclea/YANG`));
+		}
 
-		if (!body) return;
-		const update = JSON.parse(body).version;
-		const { version } = require('../package.json');
+		(async () => {
+			const { body } = await needle('get', 'https://raw.githubusercontent.com/Tenclea/YANG/main/package.json')
+				.catch(e => { logger.error(`Could not check for updates : ${e}`); return null; });
 
-		if (version !== update) return logger.info(chalk.bold(`An update is available on GitHub (v${update}) ! https://github.com/Tenclea/YANG`));
+			if (!body) return;
+			const update = JSON.parse(body).version;
+			const { version } = require('../package.json');
+
+			if (version !== update) {
+				module.exports.updateAvailable = update;
+				if (!silent) return logger.info(chalk.bold(`An update is available on GitHub (v${update}) ! https://github.com/Tenclea/YANG`));
+			}
+		})();
 	},
 
 	getCommunityCodes: async (stats) => {
