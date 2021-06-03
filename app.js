@@ -117,10 +117,10 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 			const timeout = body.retry_after;
 			if (timeout != 600000) {
 				proxies.push(proxy);
-				logger.warn(`${chalk.gray(proxy)} is being rate limited (${(timeout / 1000).toFixed(2)}s), ${proxies[0] === proxy ? 'waiting' : 'skipping proxy'}...`);
+				logger.warn(`${chalk.gray(proxy)} is being rate limited (${(timeout).toFixed(2)}s), ${proxies[0] === proxy ? 'waiting' : 'skipping proxy'}...`);
 			}
 			else {
-				logger.debug(`${chalk.gray(proxy)} was most likely banned by Discord. Removing proxy...`);
+				logger.warn(`${chalk.gray(proxy)} was most likely banned by Discord. Removing proxy...`);
 			}
 			p = proxies.shift();
 		}
@@ -128,7 +128,7 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 			logger.warn(`${code} was an invalid gift code.              `);
 		}
 		logStats();
-		return setTimeout(() => { checkCode(generateCode(), p); }, p === proxy ? (body.retry_after || 1000) : 0);
+		return setTimeout(() => { checkCode(generateCode(), p); }, p === proxy ? (body.retry_after * 1000 || 1000) : 0);
 	};
 
 	const logStats = () => {
