@@ -13,6 +13,7 @@ module.exports = async () => {
 			'https://raw.githubusercontent.com/sunny9577/proxy-scraper/master/proxies.txt',
 			'https://raw.githubusercontent.com/hookzof/socks5_list/master/proxy.txt',
 			'https://raw.githubusercontent.com/clarketm/proxy-list/master/proxy-list-raw.txt',
+			'https://raw.githubusercontent.com/proxiesmaster/Free-Proxy-List/main/proxies.txt',
 		],
 		socks: [
 			'https://api.proxyscrape.com/?request=displayproxies&status=alive&proxytype=socks4',
