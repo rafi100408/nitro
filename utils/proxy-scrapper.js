@@ -6,6 +6,7 @@ module.exports = async () => {
 		http: [
 			'https://api.proxyscrape.com/?request=displayproxies&status=alive&proxytype=https',
 			'https://api.proxyscrape.com/?request=displayproxies&status=alive&proxytype=http',
+			'https://raw.githubusercontent.com/chipsed/proxies/main/proxies.txt',
 			'https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt',
 			'https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/http.txt',
 			'https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/https.txt',
