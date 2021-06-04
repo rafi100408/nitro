@@ -16,6 +16,7 @@ module.exports = async () => {
 		],
 		socks: [
 			'https://api.proxyscrape.com/?request=displayproxies&status=alive&proxytype=socks4',
+			'https://raw.githubusercontent.com/sunny9577/proxy-scraper/master/proxies.txt',
 			'https://api.proxyscrape.com/?request=displayproxies&status=alive&proxytype=socks5',
 			'https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks4.txt',
 			'https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt',
