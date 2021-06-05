@@ -35,11 +35,11 @@ module.exports = {
 		}
 
 		(async () => {
-			const { body } = await needle('get', 'https://raw.githubusercontent.com/Tenclea/YANG/main/package.json')
+			const res = await needle('get', 'https://raw.githubusercontent.com/Tenclea/YANG/main/package.json')
 				.catch(e => { logger.error(`Could not check for updates : ${e}`); return null; });
 
-			if (!body) return;
-			const update = JSON.parse(body).version;
+			if (!res?.body) return;
+			const update = JSON.parse(res.body).version;
 			const { version } = require('../package.json');
 
 			if (version !== update) {
