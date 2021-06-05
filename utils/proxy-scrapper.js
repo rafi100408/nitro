@@ -29,7 +29,7 @@ module.exports = async () => {
 	const types = Object.keys(proxySites);
 	const scrapped = types.map(async t => {
 		const r = proxySites[t].map(async s => {
-			const res = await needle('get', s, { response_timeout: 5000 }).catch(e => e);
+			const res = await needle('get', s, { response_timeout: 5000 }).catch(e => logger.error(`Could not scrape proxies from ${s} : ${e}`));
 			if (!res.body) return [];
 			return res.body.split(/\r?\n/)
 				.filter(p => p !== '')
