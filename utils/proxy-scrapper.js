@@ -6,15 +6,18 @@ module.exports = async () => {
 		http: [
 			'https://api.proxyscrape.com/?request=displayproxies&status=alive&proxytype=https',
 			'https://api.proxyscrape.com/?request=displayproxies&status=alive&proxytype=http',
+			'https://raw.githubusercontent.com/chipsed/proxies/main/proxies.txt',
 			'https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt',
 			'https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/http.txt',
 			'https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/https.txt',
 			'https://raw.githubusercontent.com/sunny9577/proxy-scraper/master/proxies.txt',
 			'https://raw.githubusercontent.com/hookzof/socks5_list/master/proxy.txt',
 			'https://raw.githubusercontent.com/clarketm/proxy-list/master/proxy-list-raw.txt',
+			'https://raw.githubusercontent.com/proxiesmaster/Free-Proxy-List/main/proxies.txt',
 		],
 		socks: [
 			'https://api.proxyscrape.com/?request=displayproxies&status=alive&proxytype=socks4',
+			'https://raw.githubusercontent.com/sunny9577/proxy-scraper/master/proxies.txt',
 			'https://api.proxyscrape.com/?request=displayproxies&status=alive&proxytype=socks5',
 			'https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks4.txt',
 			'https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt',
