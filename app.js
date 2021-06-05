@@ -177,35 +177,23 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 		if (config.saveWorkingProxies) { writeFileSync('./working_proxies.txt', working_proxies.join('\n')); }
 	}, 5000);
 
-	if (config.scrapeProxies) {
-		let addingProxies = false;
-		setInterval(async () => {
-			if (addingProxies) return;
-			else addingProxies = true;
-
-			logger.info('Downloading updated proxies.');
-
-			const new_http_proxies = existsSync('./required/http-proxies.txt') ? (readFileSync('./required/http-proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '').map(p => 'http://' + p) : [];
-			const new_socks_proxies = existsSync('./required/socks-proxies.txt') ? (readFileSync('./required/socks-proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '').map(p => 'socks://' + p) : [];
-
-			const newProxies = new_http_proxies.concat(new_socks_proxies.concat(await require('./utils/proxy-scrapper')())).filter(p => !working_proxies.includes(p));
-			const checked = await require('./utils/proxy-checker')(newProxies, config.threads, true);
-			proxies = proxies.concat(checked);
-
-			logger.info(`Added ${checked.length} proxies.`);
-			startThreads(config.threads - stats.threads);
-			addingProxies = false;
-		}, 60 * 60 * 1000);
-	}
-
+	let addingProxies = false;
 	setInterval(async () => {
 		checkForUpdates(true);
-		const codes = await getCommunityCodes(stats);
-		if (!codes) return;
+		if (addingProxies || !config.scrapeProxies) return;
+		else addingProxies = true;
 
-		const pLength = stats.downloaded_codes.length;
-		stats.downloaded_codes = [...new Set(stats.downloaded_codes.concat(codes))];
+		logger.info('Downloading updated proxies.');
 
-		logger.debug(`Downloaded ${chalk.yellow(stats.downloaded_codes.length - pLength)} codes from the community.              `);
-	}, 60_000);
+		const new_http_proxies = existsSync('./required/http-proxies.txt') ? (readFileSync('./required/http-proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '').map(p => 'http://' + p) : [];
+		const new_socks_proxies = existsSync('./required/socks-proxies.txt') ? (readFileSync('./required/socks-proxies.txt', 'UTF-8')).split(/\r?\n/).filter(p => p !== '').map(p => 'socks://' + p) : [];
+
+		const newProxies = new_http_proxies.concat(new_socks_proxies.concat(await require('./utils/proxy-scrapper')())).filter(p => !working_proxies.includes(p));
+		const checked = await require('./utils/proxy-checker')(newProxies, config.threads, true);
+		proxies = proxies.concat(checked);
+
+		logger.info(`Added ${checked.length} proxies.`);
+		startThreads(config.threads - stats.threads);
+		addingProxies = false;
+	}, 60 * 60 * 1000);
 })();
