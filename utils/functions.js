@@ -21,7 +21,7 @@ module.exports = {
 		const headers = { 'Content-Type': 'application/json', 'Authorization': token, 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0' };
 		needle.get('https://discordapp.com/api/v9/users/@me', { response_timeout: 10000, headers: headers }, (err, res, body) => {
 			if (err) { logger.error(`Could not login using the provided ${chalk.bold('redeemToken')} : ${err}`); }
-			else if (body.message === '401: Unauthorized') { logger.error(chalk.red.bold(`Invalid redeemToken : ${chalk.reset.bold(`"${token}"`)}`)); }
+			else if (body.message === '401: Unauthorized') { logger.error(chalk.red.bold(`Invalid redeemToken: ${chalk.reset.bold(`"${token}"`)}`)); }
 			else { logger.debug(`Successfully logged in as ${chalk.bold(chalk.blue(body.username + '#' + body.discriminator))}.`); }
 			return;
 		});
@@ -36,7 +36,7 @@ module.exports = {
 
 		(async () => {
 			const res = await needle('get', 'https://raw.githubusercontent.com/Tenclea/YANG/main/package.json')
-				.catch(e => { logger.error(`Could not check for updates : ${e}`); return null; });
+				.catch(e => { logger.error(`Could not check for updates: ${e}`); return null; });
 
 			if (!res?.body) return;
 			const update = JSON.parse(res.body).version;
@@ -44,7 +44,7 @@ module.exports = {
 
 			if (version !== update) {
 				module.exports.updateAvailable = update;
-				if (!silent) return logger.info(chalk.bold(`An update is available on GitHub (v${update}) ! https://github.com/Tenclea/YANG`));
+				if (!silent) return logger.info(chalk.bold(`An update is available on GitHub (v${update})! https://github.com/Tenclea/YANG`));
 			}
 		})();
 	},
