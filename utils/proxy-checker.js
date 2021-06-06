@@ -40,8 +40,8 @@ module.exports = async (proxies, threads, silent = false) => {
 			if (silent) return;
 			const eta = (((proxies.length + threads) * maxRetries * 15000) / threads) - (+new Date() - last) || 1000;
 			const time = [new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()].map(t => { if (t < 10) { t = '0' + t; } return t; });
-			process.stdout.write(`${chalk.magenta(time.join(':'))} ${chalk.greenBright('[INFO]')}  » Proxies left : ${proxies.length + threads} | Working : ${checked.length} | Time left : ~${ms(eta, { long: true })}      \r`);
-			process.title = `Checking proxies... | Proxies left : ${proxies.length + threads} | Working : ${checked.length} | Time left : ${ms(eta, { long: true })}`;
+			process.stdout.write(`${chalk.magenta(time.join(':'))} ${chalk.greenBright('[INFO]')}  » Proxies left: ${proxies.length + threads} | Working: ${checked.length} | Time left: ~${ms(eta, { long: true })}      \r`);
+			process.title = `Checking proxies... | Proxies left: ${proxies.length + threads} | Working: ${checked.length} | Time left: ${ms(eta, { long: true })}`;
 			return;
 		};
 
