@@ -135,8 +135,8 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 		// Update title and write stats to stdout
 		const attempts = stats.used_codes.length;
 		const aps = attempts / ((+new Date() - stats.startTime) / 1000) * 60 || 0;
-		process.stdout.write(`Proxies : ${chalk.yellow(proxies.length + stats.threads)} | Attempts : ${chalk.yellow(attempts)} (~${chalk.gray(aps.toFixed(0))}/min) | Working Codes : ${chalk.green(stats.working)}  \r`);
-		process.title = `YANG - by Tenclea | Proxies : ${proxies.length + stats.threads} | Attempts : ${attempts} (~${aps.toFixed(0)}/min) | Working Codes : ${stats.working}`;
+		process.stdout.write(`Proxies: ${chalk.yellow(proxies.length + stats.threads)} | Attempts: ${chalk.yellow(attempts)} (~${chalk.gray(aps.toFixed(0))}/min) | Working Codes: ${chalk.green(stats.working)}  \r`);
+		process.title = `YANG - by Tenclea | Proxies: ${proxies.length + stats.threads} | Attempts: ${attempts} (~${aps.toFixed(0)}/min) | Working Codes: ${stats.working}`;
 		return;
 	};
 
