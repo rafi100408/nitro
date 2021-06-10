@@ -3,7 +3,7 @@ const
 	logger = require('./utils/logger'),
 	ms = require('ms'),
 	needle = require('needle'),
-	{ checkConfig, checkForUpdates, getCommunityCodes, redeemNitro, sendWebhook } = require('./utils/functions'),
+	{ checkConfig, checkForUpdates, redeemNitro, sendWebhook } = require('./utils/functions'),
 	{ existsSync, readFileSync, watchFile, writeFileSync } = require('fs'),
 	ProxyAgent = require('proxy-agent');
 
