@@ -174,7 +174,7 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 		}
 
 		/* Save working proxies */
-		if (config.saveWorkingProxies) { writeFileSync('./working_proxies.txt', working_proxies.join('\n')); }
+		if (config.saveWorkingProxies) { writeFileSync('./working_proxies.txt', working_proxies.sort(p => p.indexOf('socks')).join('\n')); }
 	}, 5000);
 
 	let addingProxies = false;
