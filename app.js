@@ -66,69 +66,70 @@ process.on('exit', () => { logger.info('Closing YANG... If you liked this projec
 		if (!proxy) { stats.threads--; return; }
 
 		const agent = new ProxyAgent(proxy); agent.timeout = 5000;
-		const url = `https://discord.com/api/v9/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`;
-		const res = await needle('get', url, {
-			agent: agent,
-			follow: 10,
-			response_timeout: 10000,
-			read_timeout: 10000,
-			rejectUnauthorized: false,
-		}).catch(e => e);
+		needle.get(
+			`https://discord.com/api/v9/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`,
+			{
+				agent: agent,
+				follow: 10,
+				response_timeout: 10000,
+				read_timeout: 10000,
+				rejectUnauthorized: false,
+			},
+			(err, res, body) => {
+				if (!body?.message && !body?.subscription_plan) {
+					let timeout = 0;
+					if (retries < 100) {
+						retries++; timeout = 2500;
+						logger.debug(`Connection to ${chalk.grey(proxy)} failed : ${chalk.red(res?.statusCode || 'INVALID RESPONSE')}.`);
+					}
+					else {
+						// proxies.push(proxy); // don't remove proxy
+						logger.debug(`Removed ${chalk.gray(proxy)} : ${chalk.red(res?.statusCode || 'INVALID RESPONSE')}`);
+						proxy = proxies.shift();
+					}
 
-		const body = res?.body;
-		if (!body?.message && !body?.subscription_plan) {
-			let timeout = 0;
-			if (retries < 100) {
-				retries++; timeout = 2500;
-				logger.debug(`Connection to ${chalk.grey(proxy)} failed : ${chalk.red(res.code || 'INVALID RESPONSE')}.`);
-			}
-			else {
-				// proxies.push(proxy); // don't remove proxy
-				logger.debug(`Removed ${chalk.gray(proxy)} : ${chalk.red(res.code || 'INVALID RESPONSE')}`);
-				proxy = proxies.shift();
-			}
+					logStats();
+					return setTimeout(() => { checkCode(generateCode(), proxy, retries); }, timeout);
+				}
 
-			logStats();
-			return setTimeout(() => { checkCode(generateCode(), proxy, retries); }, timeout);
-		}
+				retries = 0; let p = proxy;
+				stats.used_codes.push(code);
+				if (!working_proxies.includes(proxy)) working_proxies.push(proxy);
 
-		retries = 0; let p = proxy;
-		stats.used_codes.push(code);
-		if (!working_proxies.includes(proxy)) working_proxies.push(proxy);
+				if (body.subscription_plan) {
+					logger.info(`Found a valid gift code : https://discord.gift/${code} !`);
 
-		if (body.subscription_plan) {
-			logger.info(`Found a valid gift code : https://discord.gift/${code} !`);
+					// Try to redeem the code if possible
+					redeemNitro(code, config);
 
-			// Try to redeem the code if possible
-			redeemNitro(code, config);
+					if (config.webhookUrl) { sendWebhook(config.webhookUrl, `(${res.statusCode}) Found a \`${body.subscription_plan.name}\` gift code in \`${ms(+new Date() - stats.startTime, { long: true })}\` : https://discord.gift/${code}.`); }
 
-			if (config.webhookUrl) { sendWebhook(config.webhookUrl, `(${res.statusCode}) Found a \`${body.subscription_plan.name}\` gift code in \`${ms(+new Date() - stats.startTime, { long: true })}\` : https://discord.gift/${code}.`); }
+					// Write working code to file
+					let codes = existsSync('./validCodes.txt') ? readFileSync('./validCodes.txt', 'UTF-8') : '';
+					codes += body?.subscription_plan || '???';
+					codes += ` - https://discord.gift/${code}\n=====================================================\n`;
+					writeFileSync('./validCodes.txt', codes);
 
-			// Write working code to file
-			let codes = existsSync('./validCodes.txt') ? readFileSync('./validCodes.txt', 'UTF-8') : '';
-			codes += body?.subscription_plan || '???';
-			codes += ` - https://discord.gift/${code}\n=====================================================\n`;
-			writeFileSync('./validCodes.txt', codes);
-
-			stats.working++;
-		}
-		else if (body.message === 'You are being rate limited.') {
-			// timeouts equal to 600000 are frozen. Most likely a ban from Discord's side.
-			const timeout = body.retry_after;
-			if (timeout != 600000) {
-				proxies.push(proxy);
-				logger.warn(`${chalk.gray(proxy)} is being rate limited (${(timeout).toFixed(2)}s), ${proxies[0] === proxy ? 'waiting' : 'skipping proxy'}...`);
-			}
-			else {
-				logger.warn(`${chalk.gray(proxy)} was most likely banned by Discord. Removing proxy...`);
-			}
-			p = proxies.shift();
-		}
-		else if (body.message === 'Unknown Gift Code') {
-			logger.warn(`${code} was an invalid gift code.              `);
-		}
-		logStats();
-		return setTimeout(() => { checkCode(generateCode(), p); }, p === proxy ? (body.retry_after * 1000 || 1000) : 0);
+					stats.working++;
+				}
+				else if (body.message === 'You are being rate limited.') {
+					// timeouts equal to 600000 are frozen. Most likely a ban from Discord's side.
+					const timeout = body.retry_after;
+					if (timeout != 600000) {
+						proxies.push(proxy);
+						logger.warn(`${chalk.gray(proxy)} is being rate limited (${(timeout).toFixed(2)}s), ${proxies[0] === proxy ? 'waiting' : 'skipping proxy'}...`);
+					}
+					else {
+						logger.warn(`${chalk.gray(proxy)} was most likely banned by Discord. Removing proxy...`);
+					}
+					p = proxies.shift();
+				}
+				else if (body.message === 'Unknown Gift Code') {
+					logger.warn(`${code} was an invalid gift code.              `);
+				}
+				logStats();
+				return setTimeout(() => { checkCode(generateCode(), p); }, p === proxy ? (body.retry_after * 1000 || 1000) : 0);
+			});
 	};
 
 	const logStats = () => {

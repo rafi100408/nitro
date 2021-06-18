@@ -15,33 +15,34 @@ module.exports = async (proxies, threads, silent = false) => {
 
 	let last = +new Date();
 	proxies = await new Promise(complete => {
-		const checkProxy = async (p, ret = 0) => {
+		const checkProxy = (p, ret = 0) => {
 			const agent = new ProxyAgent(p); agent.timeout = 5000;
-			const res = await needle('get', 'https://discordapp.com/api/v6/experiments', {
+			needle.get('https://discordapp.com/api/v9/experiments', {
 				agent: agent,
 				follow: 10,
 				response_timeout: 10000,
 				read_timeout: 5000,
 				rejectUnauthorized: false,
-			}).catch(e => e);
+			}, (err, res, body) => {
+				if (body?.fingerprint) checked.push(p);
 
-			if (res?.body?.fingerprint) {
-				checked.push(p);
-			}
+				if (checked.indexOf(p) === -1 && ret < maxRetries) { ret++; }
+				else { p = proxies.shift(); ret = 0; }
 
-			if (ret < maxRetries && !checked.includes(p)) { ret++; }
-			else { p = proxies.shift(); ret = 0; }
-
-			if (p) { checkProxy(p, ret); if (!ret) last = +new Date(); }
-			else { return threads--; }
+				if (p) { checkProxy(p, ret); if (!ret) last = +new Date(); }
+				else { return threads--; }
+			});
 		};
 
 		const log = () => {
 			if (silent) return;
-			const eta = (((proxies.length + threads) * maxRetries * 15000) / threads) - (+new Date() - last) || 1000;
+			let eta = (((proxies.length + threads) * maxRetries * 15000) / threads) - (+new Date() - last);
+			if (!eta || eta < 60_000) eta = 'less than a minute';
+			else eta = '~' + ms(eta, { long: true });
+
 			const time = [new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()].map(t => { if (t < 10) { t = '0' + t; } return t; });
-			process.stdout.write(`${chalk.magenta(time.join(':'))} ${chalk.greenBright('[INFO]')}  » Proxies left: ${proxies.length + threads} | Working: ${checked.length} | Time left: ~${ms(eta, { long: true })}      \r`);
-			process.title = `Checking proxies... | Proxies left: ${proxies.length + threads} | Working: ${checked.length} | Time left: ${ms(eta, { long: true })}`;
+			process.stdout.write(`${chalk.magenta(time.join(':'))} ${chalk.greenBright('[INFO]')}  » Proxies left: ${proxies.length + threads} | Working: ${checked.length} | Time left: ${eta}      \r`);
+			process.title = `Checking proxies... | Proxies left: ${proxies.length + threads} | Working: ${checked.length} | Time left: ${eta}`;
 			return;
 		};
 
