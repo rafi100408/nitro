@@ -3,6 +3,8 @@
 <p align="center">
   <a href="https://github.com/Tenclea/YANG/"><img src="https://img.shields.io/github/last-commit/tenclea/yang?style=flat" /></a>
   <a href="https://github.com/Tenclea/YANG/stargazers"><img src="https://img.shields.io/github/stars/Tenclea/YANG?style=flat" /></a>
+  <a href="https://github.com/Tenclea/YANG"><img src="https://visitor-badge.laobi.icu/badge?page_id=tenclea.YANG" /></a>
+ 
   <br>
   <b>The most efficient nitro generator and checker you'll ever find.</b><br>
   Made with ❤ by <b>Tenclea</b>
