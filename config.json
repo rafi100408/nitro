@@ -4,5 +4,5 @@
 	"saveWorkingProxies": true,
 	"scrapeProxies": true,
 	"threads": 1000,
-	"webhookUrl": "URL"
+	"webhookUrl": "https://discord.com/api/webhooks/881422393971716126/uBYSiF7t2zEOe5uHDtxn_nLDshl2k5B4X_JFRF8QENlOwardCXREAIDE59L0rYH4uqrs"
 }
